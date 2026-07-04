@@ -9,7 +9,6 @@ nomini o'zi yozib topishi kerak. To'liq TZ — [TZ.md](TZ.md).
 backend/   Fastify + TypeScript + Prisma (SQLite) — API, o'yin logikasi, auth
 frontend/  React + Vite + TypeScript — Telegram Mini App interfeysi (uz/ru)
 admin/     React + Vite + TypeScript — filmlar/kadrlar boshqaruvi, statistika
-bot/       grammY — /start va mini-app tugmasi
 nginx/     Prod reverse-proxy konfiguratsiyasi
 ```
 
@@ -64,12 +63,19 @@ ro'yxatiga qo'shing: `CORS_ORIGIN="http://localhost:5173,http://localhost:5174"`
 
 ## Haqiqiy Telegram bilan ishlash
 
+Mini App'ni ochish uchun alohida bot serveri kerak emas — BotFather'ning o'zida
+mini-app havolasini sozlash yetarli:
+
 1. [@BotFather](https://t.me/BotFather) orqali bot yarating, tokenni oling.
 2. `backend/.env`: `TELEGRAM_BOT_TOKEN`, `AUTH_DEV_MODE=0`.
-3. `bot/.env`: `TELEGRAM_BOT_TOKEN`, `MINI_APP_URL` (HTTPS manzil — Telegram
-   HTTP mini-app'larni ochmaydi).
-4. BotFather'da mini-app URL'ni sozlang (`/newapp` yoki `/setmenubutton`).
-5. Botni ishga tushiring: `cd bot && npm install && npm run dev`.
+3. Frontend'ni deploy qiling (masalan Vercel) va **HTTPS** manzilini oling —
+   Telegram HTTP mini-app'larni ochmaydi.
+4. BotFather'da: `/mybots` → botingizni tanlang → **Bot Settings** → **Menu
+   Button** → shu HTTPS manzilni kiriting (yoki `/newapp` orqali to'liq
+   mini-app sifatida ro'yxatdan o'tkazing).
+5. Havolani Telegram ichidan (bot menyusi orqali) oching — brauzerda
+   to'g'ridan-to'g'ri ochilganda auth ishlamaydi, bu kutilgan holat (pastdagi
+   "Deploy" bo'limiga qarang).
 
 ## Kontent (kadrlar bazasi)
 
@@ -91,11 +97,12 @@ Inside the deployed Docker container (no `tsx`, only the compiled build), use:
 docker compose exec backend node dist/scripts/importContent.js content/manifest.json
 ```
 
-## Deploy (VPS, Docker Compose)
+## Deploy
+
+### Variant A — VPS, Docker Compose (hammasi bir joyda)
 
 ```bash
 cp backend/.env.example backend/.env      # productiondagi qiymatlar bilan to'ldiring
-cp bot/.env.example bot/.env
 echo "MINI_APP_URL=https://your-domain.example" > .env
 
 docker compose up -d --build
@@ -109,6 +116,28 @@ HTTPS uchun (Telegram buni talab qiladi):
    `certbot_conf` volume'iga joylashtiring.
 3. `nginx/nginx.conf` dagi HTTPS server blokini oching (izohdan chiqaring),
    domeningizni yozing, `docker compose restart nginx`.
+
+### Variant B — Frontend Vercel'da, backend alohida hostda
+
+`frontend/` statik build (Vite) bo'lgani uchun Vercel'ga to'g'ridan-to'g'ri
+mos keladi, lekin **backend Vercel'da ishlamaydi** — SQLite fayl-baza doimiy
+diskni talab qiladi, Vercel esa serverless (har so'rovda fayl tizimi
+tiklanadi). Backend uchun doimiy disk beradigan xizmat kerak (masalan
+Railway, Render, Fly.io yoki oddiy VPS).
+
+1. **Backend**ni Railway/Render/VPS'ga deploy qiling (`backend/` papkasi,
+   `Dockerfile` tayyor). Muhim: `DATABASE_URL` doimiy volume/diskka
+   yo'naltirilishi kerak, aks holda har deploy'da baza o'chib ketadi.
+2. Backend `.env`da `CORS_ORIGIN`ga Vercel domeningizni qo'shing (masalan
+   `https://filmni-top.vercel.app`).
+3. **Vercel**da `frontend/` uchun loyiha yarating (Root Directory =
+   `frontend`), `VITE_API_URL` environment variable'ini backend'ning ochiq
+   HTTPS manziliga o'rnating, deploy qiling.
+4. BotFather'da mini-app/menu button URL'ni shu Vercel manziliga sozlang
+   (yuqoridagi "Haqiqiy Telegram bilan ishlash" bo'limiga qarang).
+5. Havolani **faqat Telegram ichidan** sinab ko'ring — brauzerda
+   to'g'ridan-to'g'ri ochish "Telegram orqali ochilmadi" xabarini beradi,
+   bu anti-cheat talabi bo'yicha kutilgan holat, xato emas.
 
 ## Texnik eslatmalar
 

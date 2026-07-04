@@ -18,15 +18,6 @@ services:
         VITE_API_URL: ${MINI_APP_URL:-}
     restart: unless-stopped
 
-  bot:
-    build:
-      context: ./bot
-    env_file:
-      - ./bot/.env
-    restart: unless-stopped
-    depends_on:
-      - backend
-
   admin:
     build:
       context: ./admin
