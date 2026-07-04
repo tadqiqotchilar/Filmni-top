@@ -8,9 +8,7 @@ import { PrismaClient } from "@prisma/client";
 import { importFilms, type FilmManifestEntry } from "./lib/contentImport.js";
 import { generatePlaceholderSvg } from "./lib/placeholderFrame.js";
 
-const prisma = new PrismaClient();
-
-const DEMO_FILMS: FilmManifestEntry[] = [
+export const DEMO_FILMS: FilmManifestEntry[] = [
   {
     title_original: "Titanic",
     title_uz: "Titanik",
@@ -188,7 +186,7 @@ const DEMO_FILMS: FilmManifestEntry[] = [
   },
 ];
 
-async function main() {
+export async function runDemoSeed(prisma: PrismaClient) {
   const imagesDir = path.join(process.cwd(), "content", "images");
   fs.mkdirSync(imagesDir, { recursive: true });
 
@@ -208,9 +206,18 @@ async function main() {
   console.log("NOTE: frame images are abstract placeholders, not real film stills — see TZ 7.");
 }
 
-main()
-  .catch((error) => {
+async function main() {
+  const prisma = new PrismaClient();
+  try {
+    await runDemoSeed(prisma);
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+
+if (import.meta.url === `file://${process.argv[1]}`) {
+  main().catch((error) => {
     console.error(error);
     process.exitCode = 1;
-  })
-  .finally(() => prisma.$disconnect());
+  });
+}
