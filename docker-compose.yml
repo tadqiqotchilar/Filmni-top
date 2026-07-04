@@ -1,0 +1,55 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    env_file:
+      - ./backend/.env
+    environment:
+      DATABASE_URL: "file:/data/prod.db"
+    volumes:
+      - backend_db:/data
+      - ./backend/content:/app/content
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: ${MINI_APP_URL:-}
+    restart: unless-stopped
+
+  bot:
+    build:
+      context: ./bot
+    env_file:
+      - ./bot/.env
+    restart: unless-stopped
+    depends_on:
+      - backend
+
+  admin:
+    build:
+      context: ./admin
+      args:
+        VITE_API_URL: ${MINI_APP_URL:-}
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - certbot_www:/var/www/certbot
+      - certbot_conf:/etc/letsencrypt
+    depends_on:
+      - backend
+      - frontend
+      - admin
+    restart: unless-stopped
+
+volumes:
+  backend_db:
+  certbot_www:
+  certbot_conf:

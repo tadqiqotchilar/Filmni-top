@@ -1,0 +1,130 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// SQLite has no native enum support, so the following are plain strings
+// constrained in application code (see src/lib/*.ts, zod schemas):
+//   User.language      -> "uz" | "ru"
+//   Frame.difficulty   -> "easy" | "medium" | "hard"
+//   GameSession.status -> "active" | "finished"
+
+model User {
+  id          Int      @id @default(autoincrement())
+  telegramId  String   @unique
+  username    String?
+  firstName   String?
+  avatarUrl   String?
+  language    String   @default("uz")
+  totalScore  Int      @default(0)
+  gamesPlayed Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  sessions     GameSession[]
+  weeklyScores WeeklyScore[]
+  seenFrames   UserSeenFrame[]
+}
+
+model Film {
+  id            Int      @id @default(autoincrement())
+  titleOriginal String
+  titleUz       String
+  titleRu       String
+  year          Int
+  genre         String
+  posterUrl     String?
+  isActive      Boolean  @default(true)
+
+  aliases FilmAlias[]
+  frames  Frame[]
+}
+
+model FilmAlias {
+  id     Int    @id @default(autoincrement())
+  filmId Int
+  alias  String
+
+  film Film @relation(fields: [filmId], references: [id], onDelete: Cascade)
+
+  @@index([filmId])
+  @@index([alias])
+}
+
+model Frame {
+  id         Int     @id @default(autoincrement())
+  filmId     Int
+  imageUrl   String
+  difficulty String
+  isActive   Boolean @default(true)
+
+  film       Film            @relation(fields: [filmId], references: [id], onDelete: Cascade)
+  hardRounds Round[]         @relation("RoundHardFrame")
+  easyRounds Round[]         @relation("RoundEasyFrame")
+  seenBy     UserSeenFrame[]
+
+  @@index([filmId])
+}
+
+model UserSeenFrame {
+  id      Int      @id @default(autoincrement())
+  userId  Int
+  frameId Int
+  seenAt  DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  frame Frame @relation(fields: [frameId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, frameId])
+}
+
+model GameSession {
+  id            Int       @id @default(autoincrement())
+  userId        Int
+  status        String    @default("active")
+  totalScore    Int       @default(0)
+  correctCount  Int       @default(0)
+  currentRound  Int       @default(0)
+  currentStreak Int       @default(0)
+  totalRounds   Int       @default(10)
+  startedAt     DateTime  @default(now())
+  finishedAt    DateTime?
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rounds Round[]
+}
+
+model Round {
+  id            Int       @id @default(autoincrement())
+  sessionId     Int
+  frameId       Int
+  secondFrameId Int?
+  roundIndex    Int
+  attemptCount  Int       @default(0)
+  hintsUsed     String    @default("[]")
+  answerText    String?
+  isCorrect     Boolean?
+  score         Int       @default(0)
+  startedAt     DateTime  @default(now())
+  answeredAt    DateTime?
+
+  session     GameSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  frame       Frame       @relation("RoundHardFrame", fields: [frameId], references: [id])
+  secondFrame Frame?      @relation("RoundEasyFrame", fields: [secondFrameId], references: [id])
+
+  @@unique([sessionId, roundIndex])
+}
+
+model WeeklyScore {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  weekStart DateTime
+  score     Int      @default(0)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, weekStart])
+}

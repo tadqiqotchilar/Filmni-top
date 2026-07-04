@@ -1,0 +1,22 @@
+{
+  "name": "filmni-top",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": [
+    "backend",
+    "frontend",
+    "bot",
+    "admin"
+  ],
+  "scripts": {
+    "dev:backend": "npm run dev --workspace=backend",
+    "dev:frontend": "npm run dev --workspace=frontend",
+    "dev:bot": "npm run dev --workspace=bot",
+    "dev:admin": "npm run dev --workspace=admin",
+    "build:backend": "npm run build --workspace=backend",
+    "build:frontend": "npm run build --workspace=frontend",
+    "build:admin": "npm run build --workspace=admin",
+    "test:backend": "npm run test --workspace=backend",
+    "seed": "npm run seed --workspace=backend"
+  }
+}

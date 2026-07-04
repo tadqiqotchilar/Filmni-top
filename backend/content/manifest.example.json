@@ -1,0 +1,15 @@
+[
+  {
+    "title_original": "Titanic",
+    "title_uz": "Titanik",
+    "title_ru": "Титаник",
+    "year": 1997,
+    "genre": "drama",
+    "poster_url": null,
+    "aliases": ["titanic", "titanik", "титаник"],
+    "frames": [
+      { "file": "titanic_01.jpg", "difficulty": "easy" },
+      { "file": "titanic_02.jpg", "difficulty": "medium" }
+    ]
+  }
+]
