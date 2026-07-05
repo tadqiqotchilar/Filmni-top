@@ -253,13 +253,6 @@ button {
   font-size: 13px;
 }
 
-.inline-message {
-  color: var(--danger);
-  font-size: 14px;
-  text-align: center;
-  margin: 0;
-}
-
 .answer-form {
   display: flex;
   gap: 8px;

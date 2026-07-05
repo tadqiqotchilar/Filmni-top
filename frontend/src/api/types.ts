@@ -58,6 +58,8 @@ export interface AnswerResponse {
   roundFinished?: boolean;
   /** Same-round retry image (that film's medium/easy frame) after a wrong attempt. */
   retryFrame?: FrameDto | null;
+  /** Seconds left for the retry attempt: carried over if time remained, reset to full on a real timeout. */
+  remainingSeconds?: number;
   score?: number;
   breakdown?: ScoreBreakdown;
   correctTitle?: string;

@@ -225,15 +225,17 @@ export async function submitAnswer(
   if (session.userId !== userId) throw new GameError("forbidden", 403);
 
   const hintsUsed = JSON.parse(round.hintsUsed) as HintType[];
-  // Each attempt (hard/medium/easy) gets its own ROUND_SECONDS budget, timed
-  // from when that attempt's frame was shown (round.startedAt is reset below
-  // whenever we advance to the next attempt). A submission arriving after the
-  // grace window is treated as "no answer" for this attempt rather than
-  // matched against the text, so a player can't stall then paste a correct
-  // guess — but it still falls through to the same attempt-advance logic a
-  // wrong guess would, instead of ending the round outright.
+  // round.startedAt marks the current attempt's clock. Giving up early (wrong
+  // guess or skip, with time still on the clock) advances to the next
+  // attempt on the *same* clock — no free time for skipping ahead. Only a
+  // genuine expiry (the clock actually ran out) grants the next attempt a
+  // fresh ROUND_SECONDS, since otherwise medium/easy would never be
+  // reachable after a real timeout. A submission arriving after the grace
+  // window is treated as "no answer" rather than matched against the text,
+  // so a player can't stall then paste a correct guess.
   const elapsed = elapsedSeconds(round.startedAt);
   const timedOut = elapsed > ROUND_SECONDS + LATE_ANSWER_GRACE_SECONDS;
+  const attemptTimeUp = elapsed >= ROUND_SECONDS;
 
   const attemptNumber = (round.attemptCount + 1) as 1 | 2 | 3;
   const aliases = filmAliases(round.frame.film);
@@ -276,34 +278,39 @@ export async function submitAnswer(
     };
   }
 
+  if (attemptNumber < 3 && attemptTimeUp) {
+    await prisma.round.update({ where: { id: round.id }, data: { startedAt: new Date() } });
+  }
+  const remainingSeconds = Math.round(attemptTimeUp ? ROUND_SECONDS : Math.max(0, ROUND_SECONDS - elapsed));
+
   if (attemptNumber === 1) {
     if (round.secondFrame) {
       await markFrameSeen(prisma, userId, round.secondFrame.id);
-      await prisma.round.update({ where: { id: round.id }, data: { startedAt: new Date() } });
       return {
         isCorrect: false,
         timedOut,
         attemptsLeft: 2,
         roundFinished: false,
         retryFrame: frameDto(round.secondFrame),
+        remainingSeconds,
       };
     }
-    return { isCorrect: false, timedOut, attemptsLeft: 2, roundFinished: false };
+    return { isCorrect: false, timedOut, attemptsLeft: 2, roundFinished: false, remainingSeconds };
   }
 
   if (attemptNumber === 2) {
     if (round.thirdFrame) {
       await markFrameSeen(prisma, userId, round.thirdFrame.id);
-      await prisma.round.update({ where: { id: round.id }, data: { startedAt: new Date() } });
       return {
         isCorrect: false,
         timedOut,
         attemptsLeft: 1,
         roundFinished: false,
         retryFrame: frameDto(round.thirdFrame),
+        remainingSeconds,
       };
     }
-    return { isCorrect: false, timedOut, attemptsLeft: 1, roundFinished: false };
+    return { isCorrect: false, timedOut, attemptsLeft: 1, roundFinished: false, remainingSeconds };
   }
 
   const scoreResult = calculateRoundScore({

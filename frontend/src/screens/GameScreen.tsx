@@ -30,7 +30,6 @@ export default function GameScreen() {
   const [round, setRound] = useState<RoundState | null>(null);
   const [answerText, setAnswerText] = useState("");
   const [remaining, setRemaining] = useState(ROUND_SECONDS);
-  const [message, setMessage] = useState<string | null>(null);
   const [result, setResult] = useState<AnswerResponse | null>(null);
   const [hints, setHints] = useState<HintResponse[]>([]);
   const [submitting, setSubmitting] = useState(false);
@@ -85,7 +84,6 @@ export default function GameScreen() {
     });
     setAnswerText("");
     answerTextRef.current = "";
-    setMessage(null);
     setHints([]);
     setResult(null);
     setZoomed(false);
@@ -102,23 +100,24 @@ export default function GameScreen() {
 
   function handleAnswerResult(res: AnswerResponse) {
     if (res.isCorrect === false && res.roundFinished === false) {
-      // Next attempt (medium/easy) gets its own fresh timer, mirroring the
-      // per-attempt budget the backend now resets on advance.
+      // Time carries over into the next attempt (medium/easy) if there was
+      // still time left — giving up early doesn't buy a fresh clock. Only a
+      // real timeout resets it to a full ROUND_SECONDS (see backend).
+      const nextRemaining = res.remainingSeconds ?? ROUND_SECONDS;
       setRound((r) =>
         r
           ? {
               ...r,
               attemptsLeft: res.attemptsLeft ?? 1,
               frame: res.retryFrame ?? r.frame,
-              deadline: Date.now() + ROUND_SECONDS * 1000,
+              deadline: Date.now() + nextRemaining * 1000,
             }
           : r
       );
-      setMessage(t.game.wrongTryAgain);
       setAnswerText("");
       answerTextRef.current = "";
       timeoutHandledRef.current = false;
-      setRemaining(ROUND_SECONDS);
+      setRemaining(nextRemaining);
       hapticError();
       return;
     }
@@ -180,7 +179,6 @@ export default function GameScreen() {
       });
       setAnswerText("");
       answerTextRef.current = "";
-      setMessage(null);
       setHints([]);
       setResult(null);
       setZoomed(false);
@@ -227,8 +225,6 @@ export default function GameScreen() {
       </div>
 
       <HintPanel hintsUsed={hints} onUseHint={handleHint} disabled={phase !== "playing" || submitting} />
-
-      {message && <p className="inline-message">{message}</p>}
 
       <form
         className="answer-form"

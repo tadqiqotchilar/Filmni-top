@@ -20,7 +20,6 @@ export const ru: Dictionary = {
     hintYear: "Год (15)",
     hintGenre: "Жанр (10)",
     hintLettersCount: "Кол-во букв (5)",
-    wrongTryAgain: "Неверно, попробуйте ещё раз!",
     loading: "Загрузка...",
     skip: "Следующий кадр",
   },

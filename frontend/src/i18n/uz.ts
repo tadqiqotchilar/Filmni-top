@@ -18,7 +18,6 @@ export interface Dictionary {
     hintYear: string;
     hintGenre: string;
     hintLettersCount: string;
-    wrongTryAgain: string;
     loading: string;
     skip: string;
   };
@@ -71,7 +70,6 @@ export const uz: Dictionary = {
     hintYear: "Yil (15)",
     hintGenre: "Janr (10)",
     hintLettersCount: "Harflar soni (5)",
-    wrongTryAgain: "Noto'g'ri, yana urinib ko'ring!",
     loading: "Yuklanmoqda...",
     skip: "Keyingi kadr",
   },
