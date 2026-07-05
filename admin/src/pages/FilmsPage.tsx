@@ -14,7 +14,6 @@ export default function FilmsPage({
   const [films, setFilms] = useState<AdminFilm[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [info, setInfo] = useState<string | null>(null);
   const [formMode, setFormMode] = useState<"none" | "create" | number>("none");
 
   async function load() {
@@ -58,16 +57,10 @@ export default function FilmsPage({
   }
 
   async function handleDelete(id: number) {
-    if (!confirm("Filmni o'chirmoqchimisiz?")) return;
+    if (!confirm("Filmni o'chirmoqchimisiz? Bu amalni ortga qaytarib bo'lmaydi.")) return;
     setError(null);
-    setInfo(null);
     try {
-      const { softDeleted } = await api.deleteFilm(id);
-      if (softDeleted) {
-        setInfo(
-          "Bu film o'yin tarixida ishlatilgan, shuning uchun butunlay o'chirilmadi — faqat yashirildi (o'yinda ko'rsatilmaydi). Qayta faollashtirish uchun \"Tahrirlash\"dan foydalaning."
-        );
-      }
+      await api.deleteFilm(id);
       load();
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) return onAuthError();
@@ -85,7 +78,6 @@ export default function FilmsPage({
       </div>
 
       {error && <p className="error-text">{error}</p>}
-      {info && <p className="info-text">{info}</p>}
 
       {formMode === "create" && (
         <Modal title="Film qo'shish" onClose={() => setFormMode("none")}>

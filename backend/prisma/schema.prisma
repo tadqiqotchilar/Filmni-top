@@ -115,9 +115,9 @@ model Round {
   answeredAt    DateTime?
 
   session     GameSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  frame       Frame       @relation("RoundHardFrame", fields: [frameId], references: [id])
-  secondFrame Frame?      @relation("RoundMediumFrame", fields: [secondFrameId], references: [id])
-  thirdFrame  Frame?      @relation("RoundEasyFrame", fields: [thirdFrameId], references: [id])
+  frame       Frame       @relation("RoundHardFrame", fields: [frameId], references: [id], onDelete: Cascade)
+  secondFrame Frame?      @relation("RoundMediumFrame", fields: [secondFrameId], references: [id], onDelete: Cascade)
+  thirdFrame  Frame?      @relation("RoundEasyFrame", fields: [thirdFrameId], references: [id], onDelete: Cascade)
 
   @@unique([sessionId, roundIndex])
 }

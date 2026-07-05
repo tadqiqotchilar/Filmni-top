@@ -1,5 +1,4 @@
 import type { FastifyInstance } from "fastify";
-import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
@@ -106,19 +105,9 @@ export default async function adminFramesRoutes(fastify: FastifyInstance) {
     const existing = await fastify.prisma.frame.findUnique({ where: { id } });
     if (!existing) return reply.code(404).send({ error: "frame_not_found" });
 
-    try {
-      await fastify.prisma.frame.delete({ where: { id } });
-      return reply.send({ softDeleted: false });
-    } catch (err) {
-      // Frame is still referenced as a round's hard frame (FK restrict on
-      // Round.frameId) because it was already served in a played session —
-      // removing the row would corrupt that game's history, so hide it
-      // from future selection instead.
-      if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2003") {
-        await fastify.prisma.frame.update({ where: { id }, data: { isActive: false } });
-        return reply.send({ softDeleted: true });
-      }
-      throw err;
-    }
+    // Round rows referencing this frame cascade away with it, so this always
+    // fully removes the frame instead of falling back to a soft delete.
+    await fastify.prisma.frame.delete({ where: { id } });
+    return reply.code(204).send();
   });
 }

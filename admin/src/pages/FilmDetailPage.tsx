@@ -14,7 +14,6 @@ export default function FilmDetailPage({
   const [frames, setFrames] = useState<AdminFrame[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [info, setInfo] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [difficulty, setDifficulty] = useState<Difficulty>("easy");
   const [uploading, setUploading] = useState(false);
@@ -76,14 +75,10 @@ export default function FilmDetailPage({
   }
 
   async function handleDelete(frame: AdminFrame) {
-    if (!confirm("Kadrni o'chirmoqchimisiz?")) return;
+    if (!confirm("Kadrni o'chirmoqchimisiz? Bu amalni ortga qaytarib bo'lmaydi.")) return;
     setError(null);
-    setInfo(null);
     try {
-      const { softDeleted } = await api.deleteFrame(frame.id);
-      if (softDeleted) {
-        setInfo("Bu kadr o'yin tarixida ishlatilgan, shuning uchun butunlay o'chirilmadi — faqat yashirildi (yangi o'yinlarda ko'rsatilmaydi).");
-      }
+      await api.deleteFrame(frame.id);
       load();
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) return onAuthError();
@@ -99,7 +94,6 @@ export default function FilmDetailPage({
       </div>
 
       {error && <p className="error-text">{error}</p>}
-      {info && <p className="info-text">{info}</p>}
 
       <form className="upload-form" onSubmit={handleUpload}>
         <input
