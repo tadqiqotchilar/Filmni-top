@@ -1,4 +1,5 @@
 import type { FastifyInstance } from "fastify";
+import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { replaceAliases } from "../../scripts/lib/contentImport.js";
 
@@ -119,7 +120,18 @@ export default async function adminFilmsRoutes(fastify: FastifyInstance) {
     const existing = await fastify.prisma.film.findUnique({ where: { id } });
     if (!existing) return reply.code(404).send({ error: "film_not_found" });
 
-    await fastify.prisma.film.update({ where: { id }, data: { isActive: false } });
-    return reply.code(204).send();
+    try {
+      await fastify.prisma.film.delete({ where: { id } });
+      return reply.send({ softDeleted: false });
+    } catch (err) {
+      // One of the film's frames is still referenced by a played round (FK
+      // restrict on Round.frameId/secondFrameId/thirdFrameId) — removing it
+      // would corrupt that game's history, so hide the film instead.
+      if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2003") {
+        await fastify.prisma.film.update({ where: { id }, data: { isActive: false } });
+        return reply.send({ softDeleted: true });
+      }
+      throw err;
+    }
   });
 }
