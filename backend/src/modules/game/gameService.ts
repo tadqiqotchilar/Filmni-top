@@ -225,39 +225,25 @@ export async function submitAnswer(
   if (session.userId !== userId) throw new GameError("forbidden", 403);
 
   const hintsUsed = JSON.parse(round.hintsUsed) as HintType[];
+  // Each attempt (hard/medium/easy) gets its own ROUND_SECONDS budget, timed
+  // from when that attempt's frame was shown (round.startedAt is reset below
+  // whenever we advance to the next attempt). A submission arriving after the
+  // grace window is treated as "no answer" for this attempt rather than
+  // matched against the text, so a player can't stall then paste a correct
+  // guess — but it still falls through to the same attempt-advance logic a
+  // wrong guess would, instead of ending the round outright.
   const elapsed = elapsedSeconds(round.startedAt);
-
-  if (elapsed > ROUND_SECONDS + LATE_ANSWER_GRACE_SECONDS) {
-    const score = calculateRoundScore({
-      isCorrect: false,
-      attemptNumber: 2,
-      remainingSeconds: 0,
-      streakCount: 0,
-      hintsUsed,
-    });
-    const result = await finishRoundAndAdvance(prisma, session, round.id, {
-      isCorrect: false,
-      answerText: null,
-      score: score.total,
-      streak: 0,
-    });
-    return {
-      isCorrect: false,
-      timedOut: true,
-      correctTitle: localizedTitle(round.frame.film, language),
-      ...result,
-    };
-  }
+  const timedOut = elapsed > ROUND_SECONDS + LATE_ANSWER_GRACE_SECONDS;
 
   const attemptNumber = (round.attemptCount + 1) as 1 | 2 | 3;
   const aliases = filmAliases(round.frame.film);
-  const match = matchAnswer(answerText, aliases);
+  const match = timedOut ? { isCorrect: false } : matchAnswer(answerText, aliases);
   const activeFrame = frameInPlay(round, attemptNumber);
   const multiplier = DIFFICULTY_MULTIPLIER[activeFrame.difficulty] ?? 1;
 
   await prisma.round.update({
     where: { id: round.id },
-    data: { attemptCount: attemptNumber, answerText },
+    data: { attemptCount: attemptNumber, answerText: timedOut ? null : answerText },
   });
 
   if (match.isCorrect) {
@@ -293,27 +279,31 @@ export async function submitAnswer(
   if (attemptNumber === 1) {
     if (round.secondFrame) {
       await markFrameSeen(prisma, userId, round.secondFrame.id);
+      await prisma.round.update({ where: { id: round.id }, data: { startedAt: new Date() } });
       return {
         isCorrect: false,
+        timedOut,
         attemptsLeft: 2,
         roundFinished: false,
         retryFrame: frameDto(round.secondFrame),
       };
     }
-    return { isCorrect: false, attemptsLeft: 2, roundFinished: false };
+    return { isCorrect: false, timedOut, attemptsLeft: 2, roundFinished: false };
   }
 
   if (attemptNumber === 2) {
     if (round.thirdFrame) {
       await markFrameSeen(prisma, userId, round.thirdFrame.id);
+      await prisma.round.update({ where: { id: round.id }, data: { startedAt: new Date() } });
       return {
         isCorrect: false,
+        timedOut,
         attemptsLeft: 1,
         roundFinished: false,
         retryFrame: frameDto(round.thirdFrame),
       };
     }
-    return { isCorrect: false, attemptsLeft: 1, roundFinished: false };
+    return { isCorrect: false, timedOut, attemptsLeft: 1, roundFinished: false };
   }
 
   const scoreResult = calculateRoundScore({
@@ -326,13 +316,14 @@ export async function submitAnswer(
 
   const result = await finishRoundAndAdvance(prisma, session, round.id, {
     isCorrect: false,
-    answerText,
+    answerText: timedOut ? null : answerText,
     score: scoreResult.total,
     streak: 0,
   });
 
   return {
     isCorrect: false,
+    timedOut,
     attemptsLeft: 0,
     score: scoreResult.total,
     correctTitle: localizedTitle(round.frame.film, language),

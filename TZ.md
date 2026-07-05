@@ -32,7 +32,7 @@ Telegram Mini App ko'rinishidagi o'yin. O'yinchiga mashhur filmdan bitta kadr (s
 
 1. O'yinchi «Boshlash» tugmasini bosadi.
 2. Ekranda kadr chiqadi + matn kiritish maydoni.
-3. Har raundga **60 soniya** vaqt beriladi (taymer ko'rinib turadi).
+3. Har urinishga (Qiyin/O'rta/Oson kadr) **60 soniya** vaqt beriladi (taymer ko'rinib turadi); vaqt tugasa yoki javob noto'g'ri bo'lsa, keyingi urinishning kadri yangi 60 soniya bilan ko'rsatiladi.
 4. O'yinchi film nomini yozadi va «Javob berish» bosadi.
 5. Tizim javobni tekshiradi (3.3-bandga qarang).
 6. Natija ko'rsatiladi: to'g'ri/noto'g'ri, filmning to'liq nomi, yili, posteri.
@@ -153,7 +153,7 @@ Ikki til: **o'zbek** (standart) va **rus**. Foydalanuvchi sozlamalardan almashti
 ### 6.3. Anti-cheat
 
 - Javob tekshiruvi **faqat serverda** — to'g'ri javob frontend'ga hech qachon yuborilmaydi.
-- Taymer serverda ham hisoblanadi: raund boshlanish vaqti serverda saqlanadi, 60+5 soniyadan kech kelgan javob rad etiladi.
+- Taymer serverda ham hisoblanadi: har urinish boshlanish vaqti serverda saqlanadi va urinish almashganda qayta o'rnatiladi; 60+5 soniyadan kech kelgan javob shu urinish uchun noto'g'ri hisoblanadi (lekin qolgan urinishlarga xalaqit bermaydi).
 - Rasm URL'lari film nomini oshkor qilmasligi kerak (UUID nomlar: `a3f8c2.jpg`).
 - Rate limiting: bir foydalanuvchidan soniyasiga 5 so'rovdan ko'p emas.
 

@@ -56,8 +56,11 @@ export default function GameScreen() {
       }
     }, 250);
     return () => clearInterval(id);
+    // Re-subscribe on deadline change too: an attempt transition (hard ->
+    // medium -> easy) resets the deadline without changing roundIndex, and
+    // this closure needs the fresh value rather than the one from round start.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase, round?.sessionId, round?.roundIndex]);
+  }, [phase, round?.sessionId, round?.roundIndex, round?.deadline]);
 
   async function startNewSession() {
     const requestId = ++sessionRequestIdRef.current;
@@ -93,21 +96,29 @@ export default function GameScreen() {
 
   async function handleTimeout() {
     if (!round) return;
-    let res = await api.submitAnswer(round.sessionId, answerTextRef.current);
-    if (res.roundFinished === false) {
-      res = await api.submitAnswer(round.sessionId, "");
-    }
+    const res = await api.submitAnswer(round.sessionId, answerTextRef.current);
     handleAnswerResult(res);
   }
 
   function handleAnswerResult(res: AnswerResponse) {
     if (res.isCorrect === false && res.roundFinished === false) {
+      // Next attempt (medium/easy) gets its own fresh timer, mirroring the
+      // per-attempt budget the backend now resets on advance.
       setRound((r) =>
-        r ? { ...r, attemptsLeft: res.attemptsLeft ?? 1, frame: res.retryFrame ?? r.frame } : r
+        r
+          ? {
+              ...r,
+              attemptsLeft: res.attemptsLeft ?? 1,
+              frame: res.retryFrame ?? r.frame,
+              deadline: Date.now() + ROUND_SECONDS * 1000,
+            }
+          : r
       );
       setMessage(t.game.wrongTryAgain);
       setAnswerText("");
       answerTextRef.current = "";
+      timeoutHandledRef.current = false;
+      setRemaining(ROUND_SECONDS);
       hapticError();
       return;
     }
