@@ -8,6 +8,8 @@ import {
 } from "../../lib/scoring.js";
 import { selectFramesForSession } from "./frameSelection.js";
 
+const TOTAL_ATTEMPTS = 3;
+
 const DIFFICULTY_MULTIPLIER: Record<string, number> = {
   easy: 1.0,
   medium: 1.5,
@@ -42,6 +44,7 @@ async function loadActiveRound(prisma: PrismaClient, sessionId: number) {
     include: {
       frame: { include: { film: { include: { aliases: true } } } },
       secondFrame: true,
+      thirdFrame: true,
     },
   });
   if (!round) throw new GameError("round_not_found", 404);
@@ -57,9 +60,14 @@ function frameDto(frame: { id: number; imageUrl: string; difficulty: string }) {
   return { frameId: frame.id, imageUrl: frame.imageUrl, difficulty: frame.difficulty };
 }
 
-/** Hard frame on attempt 1, that film's easy frame (the "retry" image) on attempt 2. */
-function frameInPlay(round: { frame: Frame; secondFrame: Frame | null }, attemptNumber: 1 | 2): Frame {
-  return attemptNumber === 1 ? round.frame : round.secondFrame ?? round.frame;
+/** Hard frame on attempt 1, that film's medium frame on attempt 2, easy frame on attempt 3. */
+function frameInPlay(
+  round: { frame: Frame; secondFrame: Frame | null; thirdFrame: Frame | null },
+  attemptNumber: 1 | 2 | 3
+): Frame {
+  if (attemptNumber === 1) return round.frame;
+  if (attemptNumber === 2) return round.secondFrame ?? round.frame;
+  return round.thirdFrame ?? round.secondFrame ?? round.frame;
 }
 
 async function markFrameSeen(prisma: PrismaClient, userId: number, frameId: number) {
@@ -76,22 +84,23 @@ export async function startSession(prisma: PrismaClient, userId: number, totalRo
     data: { status: "finished", finishedAt: new Date() },
   });
 
-  const pairs = await selectFramesForSession(prisma, userId, totalRounds);
-  if (pairs.length === 0) {
+  const triples = await selectFramesForSession(prisma, userId, totalRounds);
+  if (triples.length === 0) {
     throw new GameError("no_content_available", 503);
   }
 
   const session = await prisma.gameSession.create({
-    data: { userId, totalRounds: pairs.length },
+    data: { userId, totalRounds: triples.length },
   });
 
   await prisma.$transaction(
-    pairs.map((pair, index) =>
+    triples.map((triple, index) =>
       prisma.round.create({
         data: {
           sessionId: session.id,
-          frameId: pair.hard.id,
-          secondFrameId: pair.easy.id,
+          frameId: triple.hard.id,
+          secondFrameId: triple.medium.id,
+          thirdFrameId: triple.easy.id,
           roundIndex: index,
           startedAt: index === 0 ? new Date() : new Date(0),
         },
@@ -99,16 +108,16 @@ export async function startSession(prisma: PrismaClient, userId: number, totalRo
     )
   );
 
-  // Only the hard frame is "seen" at session start — the easy frame is only
-  // marked seen once it's actually shown to the player (submitAnswer's
-  // wrong-attempt-1 branch), so unseen content isn't wasted on frames the
+  // Only the hard frame is "seen" at session start — the medium/easy frames
+  // are only marked seen once actually shown to the player (submitAnswer's
+  // wrong-attempt branches), so unseen content isn't wasted on frames the
   // player never saw.
   const alreadySeen = new Set(
     (await prisma.userSeenFrame.findMany({ where: { userId }, select: { frameId: true } })).map(
       (s) => s.frameId
     )
   );
-  const newlySeen = pairs.map((p) => p.hard).filter((f) => !alreadySeen.has(f.id));
+  const newlySeen = triples.map((t) => t.hard).filter((f) => !alreadySeen.has(f.id));
   // Per-row upserts (not createMany) so two concurrent startSession calls for
   // the same user (e.g. a double-tapped start button) don't race on a
   // read-then-bulk-insert and hit the (userId, frameId) unique constraint.
@@ -123,7 +132,7 @@ export async function startSession(prisma: PrismaClient, userId: number, totalRo
     sessionId: session.id,
     totalRounds: session.totalRounds,
     roundIndex: 0,
-    attemptsLeft: 2,
+    attemptsLeft: TOTAL_ATTEMPTS,
     timeLimitSeconds: ROUND_SECONDS,
     frame: frameDto(firstRound!.frame),
   };
@@ -240,7 +249,7 @@ export async function submitAnswer(
     };
   }
 
-  const attemptNumber = (round.attemptCount + 1) as 1 | 2;
+  const attemptNumber = (round.attemptCount + 1) as 1 | 2 | 3;
   const aliases = filmAliases(round.frame.film);
   const match = matchAnswer(answerText, aliases);
   const activeFrame = frameInPlay(round, attemptNumber);
@@ -286,9 +295,22 @@ export async function submitAnswer(
       await markFrameSeen(prisma, userId, round.secondFrame.id);
       return {
         isCorrect: false,
-        attemptsLeft: 1,
+        attemptsLeft: 2,
         roundFinished: false,
         retryFrame: frameDto(round.secondFrame),
+      };
+    }
+    return { isCorrect: false, attemptsLeft: 2, roundFinished: false };
+  }
+
+  if (attemptNumber === 2) {
+    if (round.thirdFrame) {
+      await markFrameSeen(prisma, userId, round.thirdFrame.id);
+      return {
+        isCorrect: false,
+        attemptsLeft: 1,
+        roundFinished: false,
+        retryFrame: frameDto(round.thirdFrame),
       };
     }
     return { isCorrect: false, attemptsLeft: 1, roundFinished: false };
@@ -365,7 +387,7 @@ export async function getSessionState(prisma: PrismaClient, userId: number, sess
 
   const elapsed = elapsedSeconds(round.startedAt);
   const remaining = Math.max(0, ROUND_SECONDS - elapsed);
-  const activeFrame = round.attemptCount >= 1 && round.secondFrame ? round.secondFrame : round.frame;
+  const activeFrame = frameInPlay(round, Math.min(round.attemptCount + 1, TOTAL_ATTEMPTS) as 1 | 2 | 3);
 
   return {
     sessionId: session.id,
@@ -373,7 +395,7 @@ export async function getSessionState(prisma: PrismaClient, userId: number, sess
     roundIndex: session.currentRound,
     totalScore: session.totalScore,
     correctCount: session.correctCount,
-    attemptsLeft: 2 - round.attemptCount,
+    attemptsLeft: TOTAL_ATTEMPTS - round.attemptCount,
     remainingSeconds: Math.round(remaining),
     frame: frameDto(activeFrame),
   };

@@ -56,7 +56,7 @@ export interface AnswerResponse {
   timedOut?: boolean;
   attemptsLeft?: number;
   roundFinished?: boolean;
-  /** Same-round retry image (that film's easy frame) after a wrong attempt 1. */
+  /** Same-round retry image (that film's medium/easy frame) after a wrong attempt. */
   retryFrame?: FrameDto | null;
   score?: number;
   breakdown?: ScoreBreakdown;

@@ -75,7 +75,7 @@ O'yinchi yozgan matn quyidagi bosqichlarda tekshiriladi:
 | Yordam ishlatilsa | yordam narxi ayiriladi |
 | Noto'g'ri javob / vaqt tugashi | 0 |
 
-Har raundda **2 ta urinish** beriladi. Ikkinchi urinishda bazaviy ochko 50 ga tushadi.
+Har raundda **3 ta urinish** beriladi: 1-urinishda Qiyin kadr, xato bo'lsa 2-urinishda O'rta kadr, yana xato bo'lsa 3-urinishda Oson kadr ko'rsatiladi (bazaviy ochko mos ravishda 100 / 50 / 25).
 
 ### 3.5. Qiyinlik darajalari
 
@@ -85,7 +85,7 @@ Har bir kadrga admin qiyinlik belgilaydi:
 - **O'rta** (×1.5) — mashhur film, lekin notanish kadr
 - **Qiyin** (×2.0) — kam taniladigan kadr yoki film
 
-Sessiya ichida kadrlar aralashtiriladi: taxminan 4 oson, 4 o'rta, 2 qiyin. Bir o'yinchiga ilgari ko'rsatilgan kadr qayta chiqmasligi kerak (baza tugagunga qadar).
+Har raund bitta film uchun uchala qiyinlik darajasidagi (Qiyin+O'rta+Oson) kadrlarni birga oladi, shuning uchun faqat uchalasi ham mavjud bo'lgan filmlar sessiyaga kiradi. Bir o'yinchiga ilgari ko'rsatilgan kadr qayta chiqmasligi kerak (baza tugagunga qadar).
 
 ---
 

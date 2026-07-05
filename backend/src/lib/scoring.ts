@@ -12,6 +12,7 @@ export type HintType = keyof typeof HINT_COSTS;
 export const ROUND_SECONDS = 60;
 export const BASE_SCORE_FIRST_ATTEMPT = 100;
 export const BASE_SCORE_SECOND_ATTEMPT = 50;
+export const BASE_SCORE_THIRD_ATTEMPT = 25;
 export const MAX_SPEED_BONUS = 55;
 export const STREAK_THRESHOLD = 3;
 export const STREAK_BASE_BONUS = 20;
@@ -33,7 +34,7 @@ export function calculateStreakBonus(streakCount: number): number {
 
 export interface RoundScoreInput {
   isCorrect: boolean;
-  attemptNumber: 1 | 2;
+  attemptNumber: 1 | 2 | 3;
   remainingSeconds: number;
   streakCount: number;
   hintsUsed: HintType[];
@@ -60,7 +61,11 @@ export function calculateRoundScore(input: RoundScoreInput): RoundScoreResult {
   }
 
   const baseScore =
-    input.attemptNumber === 1 ? BASE_SCORE_FIRST_ATTEMPT : BASE_SCORE_SECOND_ATTEMPT;
+    input.attemptNumber === 1
+      ? BASE_SCORE_FIRST_ATTEMPT
+      : input.attemptNumber === 2
+        ? BASE_SCORE_SECOND_ATTEMPT
+        : BASE_SCORE_THIRD_ATTEMPT;
   const speedBonus = calculateSpeedBonus(input.remainingSeconds);
   const streakBonus = calculateStreakBonus(input.streakCount);
   const total = baseScore + speedBonus + streakBonus - hintsCost;

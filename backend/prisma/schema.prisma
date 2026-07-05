@@ -62,10 +62,11 @@ model Frame {
   difficulty String
   isActive   Boolean @default(true)
 
-  film       Film            @relation(fields: [filmId], references: [id], onDelete: Cascade)
-  hardRounds Round[]         @relation("RoundHardFrame")
-  easyRounds Round[]         @relation("RoundEasyFrame")
-  seenBy     UserSeenFrame[]
+  film         Film            @relation(fields: [filmId], references: [id], onDelete: Cascade)
+  hardRounds   Round[]         @relation("RoundHardFrame")
+  mediumRounds Round[]         @relation("RoundMediumFrame")
+  easyRounds   Round[]         @relation("RoundEasyFrame")
+  seenBy       UserSeenFrame[]
 
   @@index([filmId])
 }
@@ -103,6 +104,7 @@ model Round {
   sessionId     Int
   frameId       Int
   secondFrameId Int?
+  thirdFrameId  Int?
   roundIndex    Int
   attemptCount  Int       @default(0)
   hintsUsed     String    @default("[]")
@@ -114,7 +116,8 @@ model Round {
 
   session     GameSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   frame       Frame       @relation("RoundHardFrame", fields: [frameId], references: [id])
-  secondFrame Frame?      @relation("RoundEasyFrame", fields: [secondFrameId], references: [id])
+  secondFrame Frame?      @relation("RoundMediumFrame", fields: [secondFrameId], references: [id])
+  thirdFrame  Frame?      @relation("RoundEasyFrame", fields: [thirdFrameId], references: [id])
 
   @@unique([sessionId, roundIndex])
 }

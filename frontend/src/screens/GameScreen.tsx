@@ -9,6 +9,7 @@ import HintPanel from "../components/HintPanel";
 import RoundResultOverlay from "../components/RoundResultOverlay";
 
 const ROUND_SECONDS = 60;
+const TOTAL_ATTEMPTS = 3;
 
 type Phase = "loading" | "playing" | "result" | "error";
 
@@ -148,7 +149,7 @@ export default function GameScreen() {
         sessionId: round.sessionId,
         totalRounds: round.totalRounds,
         roundIndex: result.roundIndex,
-        attemptsLeft: 2,
+        attemptsLeft: TOTAL_ATTEMPTS,
         frame: result.nextFrame,
         deadline: Date.now() + ROUND_SECONDS * 1000,
       });
