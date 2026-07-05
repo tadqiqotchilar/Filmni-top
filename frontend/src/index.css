@@ -199,6 +199,7 @@ button {
   border-radius: 14px;
   overflow: hidden;
   background: var(--bg-secondary);
+  cursor: zoom-in;
 }
 
 .frame-image {
@@ -206,6 +207,25 @@ button {
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+.frame-zoom-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 100;
+  cursor: zoom-out;
+}
+
+.frame-zoom-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 8px;
 }
 
 .hint-panel {

@@ -34,6 +34,7 @@ export default function GameScreen() {
   const [result, setResult] = useState<AnswerResponse | null>(null);
   const [hints, setHints] = useState<HintResponse[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const [zoomed, setZoomed] = useState(false);
 
   const answerTextRef = useRef("");
   const timeoutHandledRef = useRef(false);
@@ -84,6 +85,7 @@ export default function GameScreen() {
     setMessage(null);
     setHints([]);
     setResult(null);
+    setZoomed(false);
     timeoutHandledRef.current = false;
     setRemaining(res.timeLimitSeconds);
     setPhase("playing");
@@ -158,6 +160,7 @@ export default function GameScreen() {
       setMessage(null);
       setHints([]);
       setResult(null);
+      setZoomed(false);
       timeoutHandledRef.current = false;
       setRemaining(ROUND_SECONDS);
       setPhase("playing");
@@ -196,7 +199,7 @@ export default function GameScreen() {
 
       <Timer secondsLeft={remaining} totalSeconds={ROUND_SECONDS} />
 
-      <div className="frame-container">
+      <div className="frame-container" onClick={() => setZoomed(true)}>
         <img src={frameImageUrl(round.frame.imageUrl)} alt="" className="frame-image" />
       </div>
 
@@ -228,6 +231,12 @@ export default function GameScreen() {
       </form>
 
       {phase === "result" && result && <RoundResultOverlay result={result} onNext={handleNext} />}
+
+      {zoomed && (
+        <div className="frame-zoom-overlay" onClick={() => setZoomed(false)}>
+          <img src={frameImageUrl(round.frame.imageUrl)} alt="" className="frame-zoom-image" />
+        </div>
+      )}
     </div>
   );
 }
