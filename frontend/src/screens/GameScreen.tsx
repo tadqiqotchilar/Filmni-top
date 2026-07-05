@@ -141,6 +141,18 @@ export default function GameScreen() {
     }
   }
 
+  /** Player gives up on the current frame: forfeits this attempt (0 points) and moves on. */
+  async function handleSkip() {
+    if (!round || submitting) return;
+    setSubmitting(true);
+    try {
+      const res = await api.submitAnswer(round.sessionId, "");
+      handleAnswerResult(res);
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   async function handleHint(hintType: HintType) {
     if (!round) return;
     try {
@@ -240,6 +252,10 @@ export default function GameScreen() {
           {t.game.submit}
         </button>
       </form>
+
+      <button type="button" className="btn btn-secondary" disabled={submitting} onClick={() => void handleSkip()}>
+        {t.game.skip}
+      </button>
 
       {phase === "result" && result && <RoundResultOverlay result={result} onNext={handleNext} />}
 

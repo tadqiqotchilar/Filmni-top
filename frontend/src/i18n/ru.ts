@@ -22,6 +22,7 @@ export const ru: Dictionary = {
     hintLettersCount: "Кол-во букв (5)",
     wrongTryAgain: "Неверно, попробуйте ещё раз!",
     loading: "Загрузка...",
+    skip: "Следующий кадр",
   },
   result: {
     correct: "Верно!",

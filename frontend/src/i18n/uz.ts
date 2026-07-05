@@ -20,6 +20,7 @@ export interface Dictionary {
     hintLettersCount: string;
     wrongTryAgain: string;
     loading: string;
+    skip: string;
   };
   result: {
     correct: string;
@@ -72,6 +73,7 @@ export const uz: Dictionary = {
     hintLettersCount: "Harflar soni (5)",
     wrongTryAgain: "Noto'g'ri, yana urinib ko'ring!",
     loading: "Yuklanmoqda...",
+    skip: "Keyingi kadr",
   },
   result: {
     correct: "To'g'ri!",
