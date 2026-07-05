@@ -120,6 +120,10 @@ label {
   color: #c0392b;
 }
 
+.info-text {
+  color: #2c5f8a;
+}
+
 .data-table {
   width: 100%;
   border-collapse: collapse;

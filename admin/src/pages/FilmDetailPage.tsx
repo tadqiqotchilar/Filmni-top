@@ -14,6 +14,7 @@ export default function FilmDetailPage({
   const [frames, setFrames] = useState<AdminFrame[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [info, setInfo] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [difficulty, setDifficulty] = useState<Difficulty>("easy");
   const [uploading, setUploading] = useState(false);
@@ -54,13 +55,39 @@ export default function FilmDetailPage({
     }
   }
 
-  async function handleToggleActive(frame: AdminFrame) {
+  async function handleDifficultyChange(frame: AdminFrame, nextDifficulty: Difficulty) {
     try {
-      await api.updateFrame(frame.id, { isActive: !frame.isActive });
+      await api.updateFrame(frame.id, { difficulty: nextDifficulty });
       load();
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) return onAuthError();
       setError("Kadrni yangilab bo'lmadi");
+    }
+  }
+
+  async function handleReactivate(frame: AdminFrame) {
+    try {
+      await api.updateFrame(frame.id, { isActive: true });
+      load();
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 401) return onAuthError();
+      setError("Kadrni yangilab bo'lmadi");
+    }
+  }
+
+  async function handleDelete(frame: AdminFrame) {
+    if (!confirm("Kadrni o'chirmoqchimisiz?")) return;
+    setError(null);
+    setInfo(null);
+    try {
+      const { softDeleted } = await api.deleteFrame(frame.id);
+      if (softDeleted) {
+        setInfo("Bu kadr o'yin tarixida ishlatilgan, shuning uchun butunlay o'chirilmadi — faqat yashirildi (yangi o'yinlarda ko'rsatilmaydi).");
+      }
+      load();
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 401) return onAuthError();
+      setError("Kadrni o'chirib bo'lmadi");
     }
   }
 
@@ -72,6 +99,7 @@ export default function FilmDetailPage({
       </div>
 
       {error && <p className="error-text">{error}</p>}
+      {info && <p className="info-text">{info}</p>}
 
       <form className="upload-form" onSubmit={handleUpload}>
         <input
@@ -96,11 +124,20 @@ export default function FilmDetailPage({
           {frames.map((frame) => (
             <div key={frame.id} className={`frame-card ${frame.isActive ? "" : "row-inactive"}`}>
               <img src={frameImageUrl(frame.imageUrl)} alt="" />
-              <p>{frame.difficulty}</p>
+              <select
+                value={frame.difficulty}
+                onChange={(e) => handleDifficultyChange(frame, e.target.value as Difficulty)}
+              >
+                <option value="easy">Oson</option>
+                <option value="medium">O'rta</option>
+                <option value="hard">Qiyin</option>
+              </select>
               <div className="row-actions">
-                <button onClick={() => handleToggleActive(frame)}>
-                  {frame.isActive ? "O'chirish" : "Faollashtirish"}
-                </button>
+                {frame.isActive ? (
+                  <button onClick={() => handleDelete(frame)}>O'chirish</button>
+                ) : (
+                  <button onClick={() => handleReactivate(frame)}>Faollashtirish</button>
+                )}
               </div>
             </div>
           ))}

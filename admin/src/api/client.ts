@@ -75,7 +75,8 @@ export const api = {
       body: JSON.stringify(data),
     }),
 
-  deleteFrame: (id: number) => request<void>(`/api/admin/frames/${id}`, { method: "DELETE" }),
+  deleteFrame: (id: number) =>
+    request<{ softDeleted: boolean }>(`/api/admin/frames/${id}`, { method: "DELETE" }),
 
   stats: () => request<AdminStats>("/api/admin/stats"),
 };
