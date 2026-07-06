@@ -28,6 +28,7 @@ model User {
   sessions     GameSession[]
   weeklyScores WeeklyScore[]
   seenFrames   UserSeenFrame[]
+  filmProgress UserFilmProgress[]
 }
 
 model Film {
@@ -39,9 +40,26 @@ model Film {
   genre         String
   posterUrl     String?
   isActive      Boolean  @default(true)
+  stage         Int?
 
-  aliases FilmAlias[]
-  frames  Frame[]
+  aliases  FilmAlias[]
+  frames   Frame[]
+  progress UserFilmProgress[]
+
+  @@index([stage])
+}
+
+model UserFilmProgress {
+  id       Int      @id @default(autoincrement())
+  userId   Int
+  filmId   Int
+  solvedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  film Film @relation(fields: [filmId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, filmId])
+  @@index([filmId])
 }
 
 model FilmAlias {

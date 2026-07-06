@@ -101,6 +101,7 @@ export default function FilmsPage({
           <thead>
             <tr>
               <th>Nomi</th>
+              <th>Bosqich</th>
               <th>Yili</th>
               <th>Janri</th>
               <th>Kadrlar</th>
@@ -112,6 +113,7 @@ export default function FilmsPage({
             {films.map((film) => (
               <tr key={film.id} className={film.isActive ? "" : "row-inactive"}>
                 <td>{film.titleOriginal}</td>
+                <td>{film.stage ?? "—"}</td>
                 <td>{film.year}</td>
                 <td>{film.genre}</td>
                 <td>{film.frameCount}</td>

@@ -6,6 +6,7 @@ import type {
   LeaderboardResponse,
   MeResponse,
   SessionStateResponse,
+  StagesResponse,
   StartSessionResponse,
 } from "./types";
 
@@ -55,7 +56,10 @@ export const api = {
       body: JSON.stringify({ language }),
     }),
 
-  startGame: () => request<StartSessionResponse>("/api/game/start", { method: "POST" }),
+  startGame: (filmId: number) =>
+    request<StartSessionResponse>("/api/game/start", { method: "POST", body: JSON.stringify({ filmId }) }),
+
+  getStages: () => request<StagesResponse>("/api/stages"),
 
   submitAnswer: (sessionId: number, answerText: string) =>
     request<AnswerResponse>("/api/game/answer", {

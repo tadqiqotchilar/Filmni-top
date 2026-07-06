@@ -4,6 +4,7 @@
 // them for real screenshots per TZ 7 before shipping.
 import fs from "node:fs";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 import { PrismaClient } from "@prisma/client";
 import { importFilms, type FilmManifestEntry } from "./lib/contentImport.js";
 import { generatePlaceholderSvg } from "./lib/placeholderFrame.js";
@@ -15,6 +16,7 @@ export const DEMO_FILMS: FilmManifestEntry[] = [
     title_ru: "Титаник",
     year: 1997,
     genre: "drama",
+    stage: 1,
     aliases: ["titanic", "titanik", "титаник"],
     frames: [
       { file: "titanic_01.svg", difficulty: "easy" },
@@ -28,11 +30,13 @@ export const DEMO_FILMS: FilmManifestEntry[] = [
     title_ru: "Побег из Шоушенка",
     year: 1994,
     genre: "drama",
+    stage: 1,
     aliases: ["shawshank", "шоушенк", "shoushenkdan qochish", "shawshank redemption"],
     frames: [
       { file: "shawshank_01.svg", difficulty: "hard" },
       { file: "shawshank_02.svg", difficulty: "hard" },
       { file: "shawshank_03.svg", difficulty: "easy" },
+      { file: "shawshank_04.svg", difficulty: "medium" },
     ],
   },
   {
@@ -41,10 +45,12 @@ export const DEMO_FILMS: FilmManifestEntry[] = [
     title_ru: "Король Лев",
     year: 1994,
     genre: "animation",
+    stage: 1,
     aliases: ["lion king", "sher qirol", "король лев", "korol lev"],
     frames: [
       { file: "lionking_01.svg", difficulty: "easy" },
       { file: "lionking_02.svg", difficulty: "hard" },
+      { file: "lionking_03.svg", difficulty: "medium" },
     ],
   },
   {
@@ -53,10 +59,12 @@ export const DEMO_FILMS: FilmManifestEntry[] = [
     title_ru: "Один дома",
     year: 1990,
     genre: "comedy",
+    stage: 1,
     aliases: ["home alone", "uydagi yolgiz bola", "один дома", "odin doma"],
     frames: [
       { file: "homealone_01.svg", difficulty: "easy" },
       { file: "homealone_02.svg", difficulty: "hard" },
+      { file: "homealone_03.svg", difficulty: "medium" },
     ],
   },
   {
@@ -65,10 +73,12 @@ export const DEMO_FILMS: FilmManifestEntry[] = [
     title_ru: "Аватар",
     year: 2009,
     genre: "sci-fi",
+    stage: 1,
     aliases: ["avatar", "аватар"],
     frames: [
       { file: "avatar_01.svg", difficulty: "easy" },
       { file: "avatar_02.svg", difficulty: "hard" },
+      { file: "avatar_03.svg", difficulty: "medium" },
     ],
   },
   {
@@ -77,6 +87,7 @@ export const DEMO_FILMS: FilmManifestEntry[] = [
     title_ru: "Матрица",
     year: 1999,
     genre: "sci-fi",
+    stage: 1,
     aliases: ["matrix", "matritsa", "матрица"],
     frames: [
       { file: "matrix_01.svg", difficulty: "medium" },
@@ -90,6 +101,7 @@ export const DEMO_FILMS: FilmManifestEntry[] = [
     title_ru: "Форрест Гамп",
     year: 1994,
     genre: "drama",
+    stage: 1,
     aliases: ["forrest gump", "forrest gamp", "форрест гамп"],
     frames: [
       { file: "forrestgump_01.svg", difficulty: "medium" },
@@ -103,10 +115,12 @@ export const DEMO_FILMS: FilmManifestEntry[] = [
     title_ru: "Гарри Поттер и философский камень",
     year: 2001,
     genre: "fantasy",
+    stage: 1,
     aliases: ["harry potter", "garri potter", "гарри поттер"],
     frames: [
       { file: "harrypotter_01.svg", difficulty: "easy" },
       { file: "harrypotter_02.svg", difficulty: "hard" },
+      { file: "harrypotter_03.svg", difficulty: "medium" },
     ],
   },
   {
@@ -115,10 +129,12 @@ export const DEMO_FILMS: FilmManifestEntry[] = [
     title_ru: "Холодное сердце",
     year: 2013,
     genre: "animation",
+    stage: 1,
     aliases: ["frozen", "muzlatilgan qalb", "холодное сердце", "holodnoe serdce"],
     frames: [
       { file: "frozen_01.svg", difficulty: "easy" },
       { file: "frozen_02.svg", difficulty: "hard" },
+      { file: "frozen_03.svg", difficulty: "medium" },
     ],
   },
   {
@@ -127,6 +143,7 @@ export const DEMO_FILMS: FilmManifestEntry[] = [
     title_ru: "Начало",
     year: 2010,
     genre: "sci-fi",
+    stage: 1,
     aliases: ["inception", "boshlanish", "начало", "nachalo"],
     frames: [
       { file: "inception_01.svg", difficulty: "medium" },
@@ -140,10 +157,12 @@ export const DEMO_FILMS: FilmManifestEntry[] = [
     title_ru: "Крёстный отец",
     year: 1972,
     genre: "crime",
+    stage: 2,
     aliases: ["godfather", "chokintirilgan ota", "крестный отец", "krestniy otec"],
     frames: [
       { file: "godfather_01.svg", difficulty: "hard" },
       { file: "godfather_02.svg", difficulty: "easy" },
+      { file: "godfather_03.svg", difficulty: "medium" },
     ],
   },
   {
@@ -152,10 +171,12 @@ export const DEMO_FILMS: FilmManifestEntry[] = [
     title_ru: "Интерстеллар",
     year: 2014,
     genre: "sci-fi",
+    stage: 2,
     aliases: ["interstellar", "yulduzlararo", "интерстеллар"],
     frames: [
       { file: "interstellar_01.svg", difficulty: "hard" },
       { file: "interstellar_02.svg", difficulty: "easy" },
+      { file: "interstellar_03.svg", difficulty: "medium" },
     ],
   },
   {
@@ -164,6 +185,7 @@ export const DEMO_FILMS: FilmManifestEntry[] = [
     title_ru: "Джокер",
     year: 2019,
     genre: "drama",
+    stage: 2,
     aliases: ["joker", "джокер"],
     frames: [
       { file: "joker_01.svg", difficulty: "medium" },
@@ -177,6 +199,7 @@ export const DEMO_FILMS: FilmManifestEntry[] = [
     title_ru: "Тайна Коко",
     year: 2017,
     genre: "animation",
+    stage: 2,
     aliases: ["coco", "koko", "тайна коко", "taina koko"],
     frames: [
       { file: "coco_01.svg", difficulty: "medium" },
@@ -215,7 +238,7 @@ async function main() {
   }
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   main().catch((error) => {
     console.error(error);
     process.exitCode = 1;

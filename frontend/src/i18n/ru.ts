@@ -9,6 +9,7 @@ export const ru: Dictionary = {
     settings: "Настройки",
     totalScore: "Всего очков",
     gamesPlayed: "Игры",
+    backHome: "На главную",
   },
   game: {
     round: "Раунд",
@@ -31,14 +32,15 @@ export const ru: Dictionary = {
     correctAnswerWas: "Правильный ответ",
     next: "Далее",
   },
-  sessionEnd: {
-    title: "Сессия завершена!",
-    correctCount: "Правильных ответов",
-    totalScore: "Всего очков",
-    yourRank: "Ваше место в рейтинге",
-    playAgain: "Играть снова",
-    share: "Поделиться",
-    backHome: "На главную",
+  stages: {
+    title: "Уровни",
+    locked: "Закрыто",
+    foundLabel: "Угадано",
+    stageLabel: "Уровень",
+    progress: "угадано",
+    stageComplete: "Уровень пройден!",
+    nextUnlocked: "Следующий уровень открыт!",
+    backToStages: "К уровням",
   },
   leaderboard: {
     title: "Таблица лидеров",

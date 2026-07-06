@@ -30,6 +30,7 @@ export interface StartSessionResponse {
   attemptsLeft: number;
   timeLimitSeconds: number;
   frame: FrameDto;
+  filmId: number;
 }
 
 export interface SessionStateResponse {
@@ -41,6 +42,28 @@ export interface SessionStateResponse {
   attemptsLeft: number;
   remainingSeconds: number;
   frame: FrameDto;
+  filmId: number;
+}
+
+export interface StageFilmDto {
+  filmId: number;
+  solved: boolean;
+  title?: string;
+  year?: number;
+  posterUrl?: string | null;
+}
+
+export interface StageDto {
+  stage: number;
+  unlocked: boolean;
+  complete: boolean;
+  totalFilms: number;
+  solvedCount: number;
+  films: StageFilmDto[];
+}
+
+export interface StagesResponse {
+  stages: StageDto[];
 }
 
 export interface ScoreBreakdown {
@@ -74,6 +97,11 @@ export interface AnswerResponse {
     correctCount: number;
     totalRounds: number;
   };
+  stageProgress?: {
+    filmSolved: boolean;
+    stageCompleted: boolean;
+    nextStageUnlocked: boolean;
+  } | null;
 }
 
 export interface HintResponse {

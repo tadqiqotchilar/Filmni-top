@@ -26,7 +26,7 @@ export default function HomeScreen() {
       </div>
 
       <div className="button-stack">
-        <button className="btn btn-primary" onClick={() => navigate("/game")}>
+        <button className="btn btn-primary" onClick={() => navigate("/stages")}>
           {t.home.play}
         </button>
         <button className="btn btn-secondary" onClick={() => navigate("/leaderboard")}>

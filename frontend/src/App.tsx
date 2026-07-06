@@ -3,8 +3,9 @@ import { useAuth } from "./context/AuthContext";
 import { useI18n } from "./i18n";
 import { useEffect } from "react";
 import HomeScreen from "./screens/HomeScreen";
+import StagesScreen from "./screens/StagesScreen";
+import StageFilmsScreen from "./screens/StageFilmsScreen";
 import GameScreen from "./screens/GameScreen";
-import SessionEndScreen from "./screens/SessionEndScreen";
 import LeaderboardScreen from "./screens/LeaderboardScreen";
 import SettingsScreen from "./screens/SettingsScreen";
 
@@ -35,8 +36,9 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<HomeScreen />} />
-      <Route path="/game" element={<GameScreen />} />
-      <Route path="/session/:id/end" element={<SessionEndScreen />} />
+      <Route path="/stages" element={<StagesScreen />} />
+      <Route path="/stages/:stage" element={<StageFilmsScreen />} />
+      <Route path="/stages/:stage/play/:filmId" element={<GameScreen />} />
       <Route path="/leaderboard" element={<LeaderboardScreen />} />
       <Route path="/settings" element={<SettingsScreen />} />
     </Routes>

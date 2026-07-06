@@ -7,6 +7,7 @@ export interface Dictionary {
     settings: string;
     totalScore: string;
     gamesPlayed: string;
+    backHome: string;
   };
   game: {
     round: string;
@@ -29,14 +30,15 @@ export interface Dictionary {
     correctAnswerWas: string;
     next: string;
   };
-  sessionEnd: {
+  stages: {
     title: string;
-    correctCount: string;
-    totalScore: string;
-    yourRank: string;
-    playAgain: string;
-    share: string;
-    backHome: string;
+    locked: string;
+    foundLabel: string;
+    stageLabel: string;
+    progress: string;
+    stageComplete: string;
+    nextUnlocked: string;
+    backToStages: string;
   };
   leaderboard: {
     title: string;
@@ -59,6 +61,7 @@ export const uz: Dictionary = {
     settings: "Sozlamalar",
     totalScore: "Umumiy ochko",
     gamesPlayed: "O'yinlar",
+    backHome: "Bosh sahifa",
   },
   game: {
     round: "Raund",
@@ -81,14 +84,15 @@ export const uz: Dictionary = {
     correctAnswerWas: "To'g'ri javob",
     next: "Keyingisi",
   },
-  sessionEnd: {
-    title: "Sessiya tugadi!",
-    correctCount: "To'g'ri javoblar",
-    totalScore: "Umumiy ochko",
-    yourRank: "Reytingdagi o'rningiz",
-    playAgain: "Yana o'ynash",
-    share: "Ulashish",
-    backHome: "Bosh sahifa",
+  stages: {
+    title: "Bosqichlar",
+    locked: "Yopiq",
+    foundLabel: "Topilgan",
+    stageLabel: "Bosqich",
+    progress: "topildi",
+    stageComplete: "Bosqich tugallandi!",
+    nextUnlocked: "Keyingi bosqich ochildi!",
+    backToStages: "Bosqichlarga qaytish",
   },
   leaderboard: {
     title: "Liderlar jadvali",
