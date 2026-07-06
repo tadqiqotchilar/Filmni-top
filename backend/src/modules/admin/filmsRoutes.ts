@@ -9,6 +9,7 @@ const createFilmSchema = z.object({
   year: z.coerce.number().int(),
   genre: z.string().min(1),
   posterUrl: z.string().min(1).optional(),
+  stage: z.coerce.number().int().positive().nullable().optional(),
   aliases: z.array(z.string()).default([]),
 });
 
@@ -20,6 +21,7 @@ const updateFilmSchema = z.object({
   genre: z.string().min(1).optional(),
   posterUrl: z.string().min(1).optional(),
   isActive: z.boolean().optional(),
+  stage: z.coerce.number().int().positive().nullable().optional(),
   aliases: z.array(z.string()).optional(),
 });
 
@@ -32,6 +34,7 @@ function serializeFilm(film: {
   genre: string;
   posterUrl: string | null;
   isActive: boolean;
+  stage: number | null;
   aliases: { alias: string }[];
   frames?: unknown[];
   _count?: { frames: number };
@@ -45,6 +48,7 @@ function serializeFilm(film: {
     genre: film.genre,
     posterUrl: film.posterUrl,
     isActive: film.isActive,
+    stage: film.stage,
     aliases: film.aliases.map((a) => a.alias),
     frameCount: film._count?.frames ?? film.frames?.length ?? undefined,
     frames: film.frames,

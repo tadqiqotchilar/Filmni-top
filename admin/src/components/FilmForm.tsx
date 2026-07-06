@@ -14,6 +14,7 @@ export default function FilmForm({ initial, onSubmit, onCancel }: FilmFormProps)
   const [year, setYear] = useState(String(initial?.year ?? new Date().getFullYear()));
   const [genre, setGenre] = useState(initial?.genre ?? "");
   const [posterUrl, setPosterUrl] = useState(initial?.posterUrl ?? "");
+  const [stage, setStage] = useState(initial?.stage != null ? String(initial.stage) : "");
   const [aliasesText, setAliasesText] = useState((initial?.aliases ?? []).join("\n"));
   const [isActive, setIsActive] = useState(initial?.isActive ?? true);
   const [saving, setSaving] = useState(false);
@@ -29,6 +30,7 @@ export default function FilmForm({ initial, onSubmit, onCancel }: FilmFormProps)
         year: Number(year),
         genre,
         posterUrl: posterUrl || undefined,
+        stage: stage.trim() === "" ? null : Number(stage),
         aliases: aliasesText
           .split(/[\n,]/)
           .map((a) => a.trim())
@@ -65,6 +67,16 @@ export default function FilmForm({ initial, onSubmit, onCancel }: FilmFormProps)
       <label>
         Poster URL (ixtiyoriy)
         <input value={posterUrl} onChange={(e) => setPosterUrl(e.target.value)} />
+      </label>
+      <label>
+        Bosqich (ixtiyoriy)
+        <input
+          type="number"
+          min="1"
+          value={stage}
+          onChange={(e) => setStage(e.target.value)}
+          placeholder="masalan: 1"
+        />
       </label>
       <label>
         Aliaslar (har birini yangi qatorga yozing)

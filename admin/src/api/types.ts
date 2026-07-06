@@ -17,6 +17,7 @@ export interface AdminFilm {
   genre: string;
   posterUrl: string | null;
   isActive: boolean;
+  stage: number | null;
   aliases: string[];
   frameCount?: number;
   frames?: AdminFrame[];
@@ -46,5 +47,6 @@ export interface FilmInput {
   year: number;
   genre: string;
   posterUrl?: string;
+  stage?: number | null;
   aliases: string[];
 }

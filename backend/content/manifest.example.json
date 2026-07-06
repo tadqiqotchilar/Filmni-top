@@ -6,10 +6,12 @@
     "year": 1997,
     "genre": "drama",
     "poster_url": null,
+    "stage": 1,
     "aliases": ["titanic", "titanik", "титаник"],
     "frames": [
       { "file": "titanic_01.jpg", "difficulty": "easy" },
-      { "file": "titanic_02.jpg", "difficulty": "medium" }
+      { "file": "titanic_02.jpg", "difficulty": "medium" },
+      { "file": "titanic_03.jpg", "difficulty": "hard" }
     ]
   }
 ]

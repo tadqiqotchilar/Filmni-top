@@ -53,7 +53,7 @@ export default function LeaderboardScreen() {
       )}
 
       <button className="btn btn-secondary" onClick={() => navigate("/")}>
-        {t.sessionEnd.backHome}
+        {t.home.backHome}
       </button>
     </div>
   );

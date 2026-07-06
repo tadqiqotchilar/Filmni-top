@@ -1,6 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
-import { GameError, startSession, submitAnswer, useHint, getSessionState } from "./gameService.js";
+import { GameError, startFilmRound, submitAnswer, useHint, getSessionState } from "./gameService.js";
+import { getStagesOverview } from "./stageService.js";
 import { HINT_COSTS } from "../../lib/scoring.js";
 
 const hintTypeSchema = z.enum(Object.keys(HINT_COSTS) as [keyof typeof HINT_COSTS]);
@@ -16,12 +17,22 @@ export default async function gameRoutes(fastify: FastifyInstance) {
   fastify.addHook("preHandler", fastify.authenticate);
 
   fastify.post("/api/game/start", async (request, reply) => {
+    const bodySchema = z.object({ filmId: z.number().int() });
+    const parsed = bodySchema.safeParse(request.body);
+    if (!parsed.success) return reply.code(400).send({ error: "invalid_body" });
+
     try {
-      const result = await startSession(fastify.prisma, request.userId!);
+      const result = await startFilmRound(fastify.prisma, request.userId!, parsed.data.filmId);
       return reply.send(result);
     } catch (error) {
       return handleGameError(error, reply);
     }
+  });
+
+  fastify.get("/api/stages", async (request, reply) => {
+    const user = await fastify.prisma.user.findUnique({ where: { id: request.userId! } });
+    const result = await getStagesOverview(fastify.prisma, request.userId!, user?.language ?? "uz");
+    return reply.send(result);
   });
 
   fastify.post("/api/game/answer", async (request, reply) => {

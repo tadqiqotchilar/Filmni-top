@@ -332,6 +332,100 @@ button {
   margin: 0;
 }
 
+/* Stages */
+
+.stage-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.stage-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg-secondary);
+  border: none;
+  border-radius: 12px;
+  padding: 16px;
+  font: inherit;
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+}
+
+.stage-card:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.stage-card-title {
+  font-weight: 600;
+}
+
+.stage-card-progress {
+  color: var(--hint);
+  font-size: 14px;
+}
+
+.stage-banner {
+  background: var(--success);
+  color: var(--button-text);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.film-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.film-tile {
+  aspect-ratio: 2 / 3;
+  border-radius: 12px;
+  background: var(--bg-secondary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px;
+  text-align: center;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.film-tile-solved {
+  cursor: default;
+}
+
+.film-tile-position {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--hint);
+}
+
+.film-tile-poster {
+  width: 100%;
+  flex: 1;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.film-tile-title {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.film-tile-badge {
+  font-size: 11px;
+  color: var(--success);
+  font-weight: 600;
+}
+
 /* Session end */
 
 .session-summary-card {

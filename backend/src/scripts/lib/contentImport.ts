@@ -10,6 +10,7 @@ export interface FilmManifestEntry {
   year: number;
   genre: string;
   poster_url?: string;
+  stage?: number;
   aliases: string[];
   frames: { file: string; difficulty: Difficulty }[];
 }
@@ -56,6 +57,7 @@ export async function importFilms(
             year: entry.year,
             genre: entry.genre,
             posterUrl: entry.poster_url,
+            stage: entry.stage,
           },
         })
       : await prisma.film.create({
@@ -66,6 +68,7 @@ export async function importFilms(
             year: entry.year,
             genre: entry.genre,
             posterUrl: entry.poster_url,
+            stage: entry.stage,
           },
         });
 

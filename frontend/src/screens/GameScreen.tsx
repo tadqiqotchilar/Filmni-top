@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { api, frameImageUrl } from "../api/client";
 import type { AnswerResponse, FrameDto, HintResponse, HintType, StartSessionResponse } from "../api/types";
 import { useI18n } from "../i18n";
@@ -9,14 +9,11 @@ import HintPanel from "../components/HintPanel";
 import RoundResultOverlay from "../components/RoundResultOverlay";
 
 const ROUND_SECONDS = 60;
-const TOTAL_ATTEMPTS = 3;
 
 type Phase = "loading" | "playing" | "result" | "error";
 
 interface RoundState {
   sessionId: number;
-  totalRounds: number;
-  roundIndex: number;
   attemptsLeft: number;
   frame: FrameDto;
   deadline: number;
@@ -25,6 +22,9 @@ interface RoundState {
 export default function GameScreen() {
   const navigate = useNavigate();
   const { t } = useI18n();
+  const { stage: stageParam, filmId: filmIdParam } = useParams<{ stage: string; filmId: string }>();
+  const stage = Number(stageParam);
+  const filmId = Number(filmIdParam);
 
   const [phase, setPhase] = useState<Phase>("loading");
   const [round, setRound] = useState<RoundState | null>(null);
@@ -40,6 +40,10 @@ export default function GameScreen() {
   const sessionRequestIdRef = useRef(0);
 
   useEffect(() => {
+    if (!Number.isInteger(stage) || !Number.isInteger(filmId)) {
+      navigate("/stages", { replace: true });
+      return;
+    }
     startNewSession();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -56,16 +60,16 @@ export default function GameScreen() {
     }, 250);
     return () => clearInterval(id);
     // Re-subscribe on deadline change too: an attempt transition (hard ->
-    // medium -> easy) resets the deadline without changing roundIndex, and
-    // this closure needs the fresh value rather than the one from round start.
+    // medium -> easy) resets the deadline, and this closure needs the fresh
+    // value rather than the one from round start.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase, round?.sessionId, round?.roundIndex, round?.deadline]);
+  }, [phase, round?.sessionId, round?.deadline]);
 
   async function startNewSession() {
     const requestId = ++sessionRequestIdRef.current;
     setPhase("loading");
     try {
-      const res = await api.startGame();
+      const res = await api.startGame(filmId);
       if (sessionRequestIdRef.current !== requestId) return; // superseded by a newer request
       applyStart(res);
     } catch {
@@ -76,8 +80,6 @@ export default function GameScreen() {
   function applyStart(res: StartSessionResponse) {
     setRound({
       sessionId: res.sessionId,
-      totalRounds: res.totalRounds,
-      roundIndex: res.roundIndex,
       attemptsLeft: res.attemptsLeft,
       frame: res.frame,
       deadline: Date.now() + res.timeLimitSeconds * 1000,
@@ -163,29 +165,14 @@ export default function GameScreen() {
   }
 
   function handleNext() {
-    if (!round || !result) return;
-    if (result.isSessionDone) {
-      navigate(`/session/${round.sessionId}/end`, { state: result.sessionSummary });
-      return;
-    }
-    if (result.nextFrame && typeof result.roundIndex === "number") {
-      setRound({
-        sessionId: round.sessionId,
-        totalRounds: round.totalRounds,
-        roundIndex: result.roundIndex,
-        attemptsLeft: TOTAL_ATTEMPTS,
-        frame: result.nextFrame,
-        deadline: Date.now() + ROUND_SECONDS * 1000,
-      });
-      setAnswerText("");
-      answerTextRef.current = "";
-      setHints([]);
-      setResult(null);
-      setZoomed(false);
-      timeoutHandledRef.current = false;
-      setRemaining(ROUND_SECONDS);
-      setPhase("playing");
-    }
+    if (!result) return;
+    navigate(`/stages/${stage}`, {
+      replace: true,
+      state: {
+        stageJustCompleted: result.stageProgress?.stageCompleted ?? false,
+        nextStageUnlocked: result.stageProgress?.nextStageUnlocked ?? false,
+      },
+    });
   }
 
   if (phase === "loading" || !round) {
@@ -210,9 +197,6 @@ export default function GameScreen() {
   return (
     <div className="screen game-screen">
       <div className="game-topbar">
-        <span>
-          {t.game.round} {round.roundIndex + 1}/{round.totalRounds}
-        </span>
         <span>
           {round.attemptsLeft} {t.game.attemptsLeft}
         </span>
