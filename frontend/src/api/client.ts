@@ -56,8 +56,12 @@ export const api = {
       body: JSON.stringify({ language }),
     }),
 
-  startGame: (filmId: number) =>
-    request<StartSessionResponse>("/api/game/start", { method: "POST", body: JSON.stringify({ filmId }) }),
+  startGame: (filmId: number, signal?: AbortSignal) =>
+    request<StartSessionResponse>("/api/game/start", {
+      method: "POST",
+      body: JSON.stringify({ filmId }),
+      signal,
+    }),
 
   getStages: () => request<StagesResponse>("/api/stages"),
 

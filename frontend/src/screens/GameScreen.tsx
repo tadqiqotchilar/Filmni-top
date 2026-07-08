@@ -44,11 +44,17 @@ export default function GameScreen() {
       navigate("/stages", { replace: true });
       return;
     }
-    startNewSession();
+    // AbortController (not just the requestId guard below) so React
+    // StrictMode's dev-only double-invoke actually cancels the first
+    // in-flight request instead of leaving it racing the second one — a
+    // race that let a later, real failure overwrite an earlier success.
+    const controller = new AbortController();
+    startNewSession(controller.signal);
     // Re-run on filmId change too: handleNext navigates straight to the next
     // film's /play/:filmId route, which reuses this same component instance
     // rather than remounting it, so this effect must fire again to fetch it.
     // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => controller.abort();
   }, [stage, filmId]);
 
   useEffect(() => {
@@ -68,14 +74,15 @@ export default function GameScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, round?.sessionId, round?.deadline]);
 
-  async function startNewSession() {
+  async function startNewSession(signal?: AbortSignal) {
     const requestId = ++sessionRequestIdRef.current;
     setPhase("loading");
     try {
-      const res = await api.startGame(filmId);
+      const res = await api.startGame(filmId, signal);
       if (sessionRequestIdRef.current !== requestId) return; // superseded by a newer request
       applyStart(res);
-    } catch {
+    } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") return; // cancelled, not a real failure
       if (sessionRequestIdRef.current === requestId) setPhase("error");
     }
   }
@@ -193,21 +200,21 @@ export default function GameScreen() {
     });
   }
 
-  if (phase === "loading" || !round) {
-    return (
-      <div className="screen screen-center">
-        <p>{t.game.loading}</p>
-      </div>
-    );
-  }
-
   if (phase === "error") {
     return (
       <div className="screen screen-center">
         <p>Xatolik yuz berdi. Qayta urinib ko'ring.</p>
-        <button className="btn btn-primary" onClick={startNewSession}>
+        <button className="btn btn-primary" onClick={() => startNewSession()}>
           {t.result.next}
         </button>
+      </div>
+    );
+  }
+
+  if (phase === "loading" || !round) {
+    return (
+      <div className="screen screen-center">
+        <p>{t.game.loading}</p>
       </div>
     );
   }
