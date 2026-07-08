@@ -319,14 +319,14 @@ export async function submitAnswer(
     streak: 0,
   });
 
+  // Anti-cheat: the film stays unsolved after 3 wrong attempts and can be
+  // replayed later, so the title must not leak here — unlike the isCorrect
+  // branch above, where the round is over for good.
   return {
     isCorrect: false,
     timedOut,
     attemptsLeft: 0,
     score: scoreResult.total,
-    correctTitle: localizedTitle(round.frame.film, language),
-    year: round.frame.film.year,
-    posterUrl: round.frame.film.posterUrl,
     ...result,
   };
 }
