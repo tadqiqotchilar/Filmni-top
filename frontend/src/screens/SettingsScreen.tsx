@@ -2,10 +2,13 @@ import { useNavigate } from "react-router-dom";
 import { api } from "../api/client";
 import { useI18n } from "../i18n";
 import type { Language } from "../api/types";
+import { useTelegramBackButton } from "../telegram/telegram";
 
 export default function SettingsScreen() {
   const { t, lang, setLang } = useI18n();
   const navigate = useNavigate();
+
+  useTelegramBackButton(() => navigate("/"));
 
   async function changeLanguage(next: Language) {
     setLang(next);
@@ -31,10 +34,6 @@ export default function SettingsScreen() {
           </button>
         </div>
       </div>
-
-      <button className="btn btn-secondary" onClick={() => navigate("/")}>
-        {t.home.backHome}
-      </button>
     </div>
   );
 }

@@ -3,6 +3,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { api, frameImageUrl } from "../api/client";
 import type { StageDto } from "../api/types";
 import { useI18n } from "../i18n";
+import { useTelegramBackButton } from "../telegram/telegram";
 
 interface StageNavState {
   stageJustCompleted?: boolean;
@@ -19,6 +20,8 @@ export default function StageFilmsScreen() {
   const [stageDto, setStageDto] = useState<StageDto | null>(null);
   const [notFound, setNotFound] = useState(false);
   const banner = location.state as StageNavState | null;
+
+  useTelegramBackButton(() => navigate("/stages"));
 
   useEffect(() => {
     if (!Number.isInteger(stage)) {
@@ -90,10 +93,6 @@ export default function StageFilmsScreen() {
           ))}
         </div>
       )}
-
-      <button className="btn btn-secondary" onClick={() => navigate("/stages")}>
-        {t.stages.backToStages}
-      </button>
     </div>
   );
 }

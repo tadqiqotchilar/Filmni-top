@@ -6,7 +6,6 @@ export interface Dictionary {
     settings: string;
     totalScore: string;
     gamesPlayed: string;
-    backHome: string;
   };
   game: {
     round: string;
@@ -37,7 +36,6 @@ export interface Dictionary {
     progress: string;
     stageComplete: string;
     nextUnlocked: string;
-    backToStages: string;
   };
   leaderboard: {
     title: string;
@@ -59,7 +57,6 @@ export const uz: Dictionary = {
     settings: "Sozlamalar",
     totalScore: "Umumiy ochko",
     gamesPlayed: "O'yinlar",
-    backHome: "Bosh sahifa",
   },
   game: {
     round: "Raund",
@@ -90,7 +87,6 @@ export const uz: Dictionary = {
     progress: "topildi",
     stageComplete: "Bosqich tugallandi!",
     nextUnlocked: "Keyingi bosqich ochildi!",
-    backToStages: "Bosqichlarga qaytish",
   },
   leaderboard: {
     title: "Liderlar jadvali",

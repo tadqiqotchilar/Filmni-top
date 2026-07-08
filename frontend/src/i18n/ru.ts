@@ -8,7 +8,6 @@ export const ru: Dictionary = {
     settings: "Настройки",
     totalScore: "Всего очков",
     gamesPlayed: "Игры",
-    backHome: "На главную",
   },
   game: {
     round: "Раунд",
@@ -39,7 +38,6 @@ export const ru: Dictionary = {
     progress: "угадано",
     stageComplete: "Уровень пройден!",
     nextUnlocked: "Следующий уровень открыт!",
-    backToStages: "К уровням",
   },
   leaderboard: {
     title: "Таблица лидеров",

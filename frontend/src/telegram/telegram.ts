@@ -9,7 +9,14 @@ import {
   hapticFeedbackImpactOccurred,
   hapticFeedbackNotificationOccurred,
   isTMA,
+  mountBackButton,
+  isBackButtonMounted,
+  showBackButton,
+  hideBackButton,
+  onBackButtonClick,
+  offBackButtonClick,
 } from "@telegram-apps/sdk";
+import { useEffect, useRef } from "react";
 
 /** Best-effort SDK bring-up. No-ops (rather than throwing) when running
  * outside Telegram, e.g. in a regular browser during local development. */
@@ -76,4 +83,31 @@ export function hapticTap() {
   } catch {
     /* ignore */
   }
+}
+
+/** Shows Telegram's native top-left back button for as long as the calling
+ * screen is mounted, routing its clicks to `onBack`. No-ops outside Telegram
+ * (e.g. a regular browser during local development). */
+export function useTelegramBackButton(onBack: () => void) {
+  const onBackRef = useRef(onBack);
+  onBackRef.current = onBack;
+
+  useEffect(() => {
+    const handleClick = () => onBackRef.current();
+    try {
+      if (!isBackButtonMounted()) mountBackButton();
+      showBackButton();
+      onBackButtonClick(handleClick);
+    } catch {
+      /* BackButton unsupported outside Telegram */
+    }
+    return () => {
+      try {
+        offBackButtonClick(handleClick);
+        hideBackButton();
+      } catch {
+        /* ignore */
+      }
+    };
+  }, []);
 }

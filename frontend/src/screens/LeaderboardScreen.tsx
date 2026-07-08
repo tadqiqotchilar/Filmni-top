@@ -4,6 +4,7 @@ import { api } from "../api/client";
 import type { LeaderboardResponse } from "../api/types";
 import { useI18n } from "../i18n";
 import { useAuth } from "../context/AuthContext";
+import { useTelegramBackButton } from "../telegram/telegram";
 
 export default function LeaderboardScreen() {
   const { t } = useI18n();
@@ -12,6 +13,8 @@ export default function LeaderboardScreen() {
   const [period, setPeriod] = useState<"weekly" | "all">("all");
   const [data, setData] = useState<LeaderboardResponse | null>(null);
   const [loading, setLoading] = useState(true);
+
+  useTelegramBackButton(() => navigate("/"));
 
   useEffect(() => {
     setLoading(true);
@@ -64,10 +67,6 @@ export default function LeaderboardScreen() {
           {t.leaderboard.you}: #{data.me.rank} — {data.me.score}
         </div>
       )}
-
-      <button className="btn btn-secondary" onClick={() => navigate("/")}>
-        {t.home.backHome}
-      </button>
     </div>
   );
 }
