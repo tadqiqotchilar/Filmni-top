@@ -132,7 +132,10 @@ Railway, Render, Fly.io yoki oddiy VPS).
    `https://filmni-top.vercel.app`).
 3. **Vercel**da `frontend/` uchun loyiha yarating (Root Directory =
    `frontend`), `VITE_API_URL` environment variable'ini backend'ning ochiq
-   HTTPS manziliga o'rnating, deploy qiling.
+   HTTPS manziliga o'rnating, deploy qiling. `frontend/vercel.json` ichki
+   marshrutlarni (masalan `/stages/1/play/5`) sahifa yangilanganda 404
+   bermasligi uchun `index.html`ga yo'naltiradi — qo'shimcha sozlash kerak
+   emas.
 4. BotFather'da mini-app/menu button URL'ni shu Vercel manziliga sozlang
    (yuqoridagi "Haqiqiy Telegram bilan ishlash" bo'limiga qarang).
 5. Havolani **faqat Telegram ichidan** sinab ko'ring — brauzerda
