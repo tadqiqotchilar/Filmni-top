@@ -45,8 +45,11 @@ export default function GameScreen() {
       return;
     }
     startNewSession();
+    // Re-run on filmId change too: handleNext navigates straight to the next
+    // film's /play/:filmId route, which reuses this same component instance
+    // rather than remounting it, so this effect must fire again to fetch it.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [stage, filmId]);
 
   useEffect(() => {
     if (phase !== "playing" || !round) return;
@@ -164,8 +167,23 @@ export default function GameScreen() {
     }
   }
 
-  function handleNext() {
+  async function handleNext() {
     if (!result) return;
+
+    if (result.isCorrect) {
+      try {
+        const stagesRes = await api.getStages();
+        const stageDto = stagesRes.stages.find((s) => s.stage === stage);
+        const nextFilm = stageDto?.films.find((f) => !f.solved);
+        if (nextFilm) {
+          navigate(`/stages/${stage}/play/${nextFilm.filmId}`, { replace: true });
+          return;
+        }
+      } catch {
+        /* fall through to the stage screen if the stage list can't be fetched */
+      }
+    }
+
     navigate(`/stages/${stage}`, {
       replace: true,
       state: {
