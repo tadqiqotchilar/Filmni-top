@@ -75,8 +75,13 @@ export default function StageFilmsScreen() {
                   {film.posterUrl && (
                     <img src={frameImageUrl(film.posterUrl)} alt="" className="film-tile-poster" />
                   )}
-                  <span className="film-tile-title">{film.title}</span>
-                  <span className="film-tile-badge">{t.stages.foundLabel}</span>
+                  <div className="film-tile-info">
+                    <span className="film-tile-title">{film.title}</span>
+                    <span className="film-tile-meta">
+                      <span className="film-tile-badge">{t.stages.foundLabel}</span>
+                      {film.year && <span className="film-tile-year"> · {film.year}</span>}
+                    </span>
+                  </div>
                 </>
               ) : (
                 <span className="film-tile-position">{index + 1}</span>

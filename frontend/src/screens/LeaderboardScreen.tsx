@@ -3,9 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { api } from "../api/client";
 import type { LeaderboardResponse } from "../api/types";
 import { useI18n } from "../i18n";
+import { useAuth } from "../context/AuthContext";
 
 export default function LeaderboardScreen() {
   const { t } = useI18n();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [period, setPeriod] = useState<"weekly" | "all">("all");
   const [data, setData] = useState<LeaderboardResponse | null>(null);
@@ -22,6 +24,17 @@ export default function LeaderboardScreen() {
   return (
     <div className="screen">
       <h1>{t.leaderboard.title}</h1>
+
+      <div className="stat-row">
+        <div className="stat-card">
+          <span className="stat-value">{user?.totalScore ?? 0}</span>
+          <span className="stat-label">{t.home.totalScore}</span>
+        </div>
+        <div className="stat-card">
+          <span className="stat-value">{user?.gamesPlayed ?? 0}</span>
+          <span className="stat-label">{t.home.gamesPlayed}</span>
+        </div>
+      </div>
 
       <div className="tab-row">
         <button className={`tab ${period === "all" ? "tab-active" : ""}`} onClick={() => setPeriod("all")}>

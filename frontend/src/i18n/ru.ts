@@ -4,7 +4,6 @@ export const ru: Dictionary = {
   appName: "Угадай фильм",
   home: {
     tagline: "Смотри кадр, угадывай фильм!",
-    play: "Играть",
     leaderboard: "Рейтинг",
     settings: "Настройки",
     totalScore: "Всего очков",

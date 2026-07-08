@@ -2,7 +2,6 @@ import { Route, Routes } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 import { useI18n } from "./i18n";
 import { useEffect } from "react";
-import HomeScreen from "./screens/HomeScreen";
 import StagesScreen from "./screens/StagesScreen";
 import StageFilmsScreen from "./screens/StageFilmsScreen";
 import GameScreen from "./screens/GameScreen";
@@ -35,7 +34,7 @@ function App() {
 
   return (
     <Routes>
-      <Route path="/" element={<HomeScreen />} />
+      <Route path="/" element={<StagesScreen />} />
       <Route path="/stages" element={<StagesScreen />} />
       <Route path="/stages/:stage" element={<StageFilmsScreen />} />
       <Route path="/stages/:stage/play/:filmId" element={<GameScreen />} />

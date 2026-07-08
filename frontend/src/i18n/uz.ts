@@ -2,7 +2,6 @@ export interface Dictionary {
   appName: string;
   home: {
     tagline: string;
-    play: string;
     leaderboard: string;
     settings: string;
     totalScore: string;
@@ -56,7 +55,6 @@ export const uz: Dictionary = {
   appName: "Filmni Top",
   home: {
     tagline: "Kadrni ko'r, filmni top!",
-    play: "O'ynash",
     leaderboard: "Reyting",
     settings: "Sozlamalar",
     totalScore: "Umumiy ochko",

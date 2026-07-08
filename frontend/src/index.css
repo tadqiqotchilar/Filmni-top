@@ -1,28 +1,38 @@
 :root {
-  --bg: var(--tg-theme-bg-color, #ffffff);
-  --bg-secondary: var(--tg-theme-secondary-bg-color, #f0f0f3);
-  --text: var(--tg-theme-text-color, #1a1a1a);
-  --hint: var(--tg-theme-hint-color, #7a7a80);
-  --link: var(--tg-theme-link-color, #2481cc);
-  --button-bg: var(--tg-theme-button-color, #2481cc);
-  --button-text: var(--tg-theme-button-text-color, #ffffff);
-  --success: #34c759;
-  --danger: #ff3b30;
+  /* Cinema dark + red — palette sourced from the "Video Streaming/OTT" product
+     entry in the design-system data (flat black stage, solid dark-gray cards,
+     #E11D48 accent). White-on-accent and accent-light-on-card both verified
+     >=4.5:1 (WCAG AA) by hand since the skill's CLI needs Python, which this
+     machine doesn't have installed. */
+  --bg: #000000;
+  --bg-secondary: #181818;
+  --surface-border: rgba(255, 255, 255, 0.08);
+  --text: #f5f6f8;
+  --hint: #94a3b8;
+  --link: #ff4d6d;
+  --button-bg: #e11d48;
+  --button-text: #ffffff;
 
-  color-scheme: light dark;
+  --accent: #e11d48;
+  --accent-light: #ff4d6d;
+  --accent-gradient: linear-gradient(135deg, #e11d48 0%, #a30f37 100%);
+  --glow: 0 0 20px rgba(225, 29, 72, 0.3);
+
+  --success: #22c55e;
+  /* Deliberately more orange than --accent so "wrong answer" reads distinct
+     from the brand/CTA red, not just a duller version of it. */
+  --danger: #ff5a3c;
+
+  color-scheme: dark;
   font: 16px/1.45 system-ui, "Segoe UI", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: var(--tg-theme-bg-color, #1a1a1d);
-    --bg-secondary: var(--tg-theme-secondary-bg-color, #232326);
-    --text: var(--tg-theme-text-color, #f2f2f2);
-    --hint: var(--tg-theme-hint-color, #9a9aa0);
-    --link: var(--tg-theme-link-color, #6ab7ff);
-    --button-bg: var(--tg-theme-button-color, #6ab7ff);
-    --button-text: var(--tg-theme-button-text-color, #08060d);
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
   }
 }
 
@@ -30,10 +40,15 @@
   box-sizing: border-box;
 }
 
+html {
+  background: var(--bg);
+}
+
 body {
   margin: 0;
-  background: var(--bg);
   color: var(--text);
+  background: radial-gradient(120% 40% at 50% 0%, rgba(225, 29, 72, 0.14), transparent 65%), var(--bg);
+  min-height: 100svh;
 }
 
 #root {
@@ -45,8 +60,11 @@ body {
 }
 
 h1 {
-  font-size: 24px;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
   margin: 8px 0;
+  color: var(--text);
 }
 
 h2 {
@@ -72,13 +90,45 @@ button {
   text-align: center;
 }
 
-.home-header {
-  text-align: center;
+.home-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
 }
 
 .tagline {
   color: var(--hint);
   margin: 0;
+}
+
+.section-title {
+  margin: 4px 0 0;
+}
+
+.icon-btn-row {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.icon-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--surface-border);
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.icon-btn svg {
+  width: 20px;
+  height: 20px;
 }
 
 .stat-row {
@@ -89,8 +139,9 @@ button {
 .stat-card {
   flex: 1;
   background: var(--bg-secondary);
+  border: 1px solid var(--surface-border);
   border-radius: 14px;
-  padding: 14px;
+  padding: 16px 14px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -98,8 +149,9 @@ button {
 }
 
 .stat-value {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 700;
+  color: var(--text);
 }
 
 .stat-label {
@@ -107,45 +159,50 @@ button {
   color: var(--hint);
 }
 
-.button-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: auto;
-}
-
 .btn {
   border: none;
-  border-radius: 12px;
-  padding: 14px 18px;
+  border-radius: 14px;
+  padding: 15px 20px;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  transition: opacity 0.15s ease;
+  transition: opacity 0.15s ease, transform 0.1s ease;
+}
+
+.btn:active {
+  transform: scale(0.98);
 }
 
 .btn:disabled {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: default;
 }
 
 .btn-primary {
-  background: var(--button-bg);
+  background: var(--accent-gradient);
   color: var(--button-text);
+  box-shadow: var(--glow);
 }
 
 .btn-secondary {
   background: var(--bg-secondary);
   color: var(--text);
+  border: 1px solid var(--surface-border);
 }
 
 .btn-hint {
   background: var(--bg-secondary);
   color: var(--text);
+  border: 1px solid var(--surface-border);
   border-radius: 10px;
-  padding: 8px 10px;
+  padding: 13px 14px;
   font-size: 13px;
   font-weight: 500;
+}
+
+.btn-hint:disabled {
+  color: var(--accent-light);
+  opacity: 0.7;
 }
 
 /* Game screen */
@@ -161,6 +218,13 @@ button {
   color: var(--hint);
 }
 
+.game-topbar span {
+  background: var(--bg-secondary);
+  border: 1px solid var(--surface-border);
+  border-radius: 8px;
+  padding: 4px 10px;
+}
+
 .timer {
   display: flex;
   align-items: center;
@@ -169,20 +233,23 @@ button {
 
 .timer-bar-track {
   flex: 1;
-  height: 6px;
+  height: 8px;
   background: var(--bg-secondary);
-  border-radius: 3px;
+  border: 1px solid var(--surface-border);
+  border-radius: 999px;
   overflow: hidden;
 }
 
 .timer-bar-fill {
   height: 100%;
-  background: var(--button-bg);
+  background: var(--accent-gradient);
+  box-shadow: 0 0 12px rgba(225, 29, 72, 0.6);
   transition: width 0.2s linear;
 }
 
 .timer-low .timer-bar-fill {
-  background: var(--danger);
+  background: linear-gradient(135deg, #ff8a4d, var(--danger));
+  box-shadow: 0 0 12px rgba(255, 90, 60, 0.7);
 }
 
 .timer-value {
@@ -194,12 +261,25 @@ button {
 }
 
 .frame-container {
+  position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
-  border-radius: 14px;
+  border-radius: 16px;
   overflow: hidden;
   background: var(--bg-secondary);
+  border: 1px solid var(--surface-border);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
   cursor: zoom-in;
+}
+
+/* Poster-style fade to black at the bottom, like a movie hero card. */
+.frame-container::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 45%;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.85), transparent);
+  pointer-events: none;
 }
 
 .frame-image {
@@ -212,7 +292,7 @@ button {
 .frame-zoom-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.85);
+  background: rgba(0, 0, 0, 0.9);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -248,9 +328,11 @@ button {
 
 .hint-value-chip {
   background: var(--bg-secondary);
+  border: 1px solid var(--surface-border);
   border-radius: 8px;
-  padding: 4px 10px;
+  padding: 5px 12px;
   font-size: 13px;
+  color: var(--accent-light);
 }
 
 .answer-form {
@@ -261,29 +343,41 @@ button {
 
 .answer-form input {
   flex: 1;
-  padding: 12px 14px;
-  border-radius: 12px;
-  border: 1px solid var(--bg-secondary);
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--surface-border);
   background: var(--bg-secondary);
   color: var(--text);
   font-size: 16px;
 }
 
+.answer-form input::placeholder {
+  color: var(--hint);
+}
+
+.answer-form input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.25);
+}
+
 .overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(2px);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 20px;
-  border-radius: 14px;
+  border-radius: 16px;
 }
 
 .overlay-card {
-  background: var(--bg);
+  background: #141414;
+  border: 1px solid var(--surface-border);
   border-radius: 16px;
-  padding: 24px 20px;
+  padding: 26px 20px;
   width: 100%;
   max-width: 340px;
   display: flex;
@@ -291,11 +385,13 @@ button {
   align-items: center;
   gap: 12px;
   text-align: center;
-  border-top: 4px solid var(--hint);
+  border-top: 3px solid var(--hint);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
 }
 
 .overlay-correct {
-  border-top-color: var(--success);
+  border-top-color: var(--accent-light);
+  box-shadow: 0 0 40px rgba(225, 29, 72, 0.25), 0 20px 60px rgba(0, 0, 0, 0.5);
 }
 
 .overlay-incorrect {
@@ -327,9 +423,10 @@ button {
 }
 
 .overlay-score {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 700;
   margin: 0;
+  color: var(--accent-light);
 }
 
 /* Stages */
@@ -345,8 +442,8 @@ button {
   justify-content: space-between;
   align-items: center;
   background: var(--bg-secondary);
-  border: none;
-  border-radius: 12px;
+  border: 1px solid var(--surface-border);
+  border-radius: 14px;
   padding: 16px;
   font: inherit;
   color: var(--text);
@@ -355,7 +452,7 @@ button {
 }
 
 .stage-card:disabled {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: default;
 }
 
@@ -369,12 +466,13 @@ button {
 }
 
 .stage-banner {
-  background: var(--success);
+  background: var(--accent-gradient);
   color: var(--button-text);
   border-radius: 12px;
-  padding: 12px 14px;
+  padding: 14px;
   font-weight: 600;
   text-align: center;
+  box-shadow: var(--glow);
 }
 
 .film-grid {
@@ -384,22 +482,21 @@ button {
 }
 
 .film-tile {
+  position: relative;
   aspect-ratio: 2 / 3;
   border-radius: 12px;
   background: var(--bg-secondary);
+  border: 1px solid var(--surface-border);
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  padding: 8px;
-  text-align: center;
   overflow: hidden;
   cursor: pointer;
 }
 
 .film-tile-solved {
   cursor: default;
+  border-color: rgba(225, 29, 72, 0.35);
 }
 
 .film-tile-position {
@@ -409,27 +506,53 @@ button {
 }
 
 .film-tile-poster {
+  position: absolute;
+  inset: 0;
   width: 100%;
-  flex: 1;
+  height: 100%;
   object-fit: cover;
-  border-radius: 8px;
+}
+
+/* Poster-card look: title/badge sit on a bottom fade over the artwork,
+   like a movie hero card, instead of stacked below a shrunk poster. */
+.film-tile-info {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: 18px 8px 8px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
 }
 
 .film-tile-title {
   font-size: 12px;
   font-weight: 600;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.film-tile-meta {
+  font-size: 11px;
 }
 
 .film-tile-badge {
-  font-size: 11px;
-  color: var(--success);
+  color: var(--accent-light);
   font-weight: 600;
+}
+
+.film-tile-year {
+  color: var(--hint);
 }
 
 /* Session end */
 
 .session-summary-card {
   background: var(--bg-secondary);
+  border: 1px solid var(--surface-border);
   border-radius: 14px;
   padding: 16px;
   width: 100%;
@@ -451,17 +574,19 @@ button {
 
 .tab {
   flex: 1;
-  border: none;
+  border: 1px solid var(--surface-border);
   background: var(--bg-secondary);
   color: var(--text);
-  padding: 10px;
+  padding: 13px 10px;
   border-radius: 10px;
   cursor: pointer;
 }
 
 .tab-active {
-  background: var(--button-bg);
+  background: var(--accent-gradient);
+  border-color: transparent;
   color: var(--button-text);
+  box-shadow: var(--glow);
 }
 
 .leaderboard-list {
@@ -478,7 +603,8 @@ button {
   align-items: center;
   gap: 10px;
   background: var(--bg-secondary);
-  border-radius: 10px;
+  border: 1px solid var(--surface-border);
+  border-radius: 12px;
   padding: 10px 12px;
 }
 
@@ -495,11 +621,13 @@ button {
 
 .lb-score {
   font-weight: 700;
+  color: var(--accent-light);
 }
 
 .leaderboard-me {
   background: var(--bg-secondary);
-  border-radius: 10px;
+  border: 1px solid rgba(225, 29, 72, 0.35);
+  border-radius: 12px;
   padding: 10px 12px;
   font-weight: 600;
 }
@@ -511,7 +639,8 @@ button {
   justify-content: space-between;
   align-items: center;
   background: var(--bg-secondary);
-  border-radius: 12px;
+  border: 1px solid var(--surface-border);
+  border-radius: 14px;
   padding: 14px;
 }
 
