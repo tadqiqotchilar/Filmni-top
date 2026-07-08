@@ -48,6 +48,7 @@ export interface SessionStateResponse {
 export interface StageFilmDto {
   filmId: number;
   solved: boolean;
+  locked: boolean;
   title?: string;
   year?: number;
   posterUrl?: string | null;

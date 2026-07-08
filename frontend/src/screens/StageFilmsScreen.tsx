@@ -67,10 +67,12 @@ export default function StageFilmsScreen() {
           {stageDto.films.map((film, index) => (
             <div
               key={film.filmId}
-              className={`film-tile ${film.solved ? "film-tile-solved" : ""}`}
-              role={film.solved ? undefined : "button"}
+              className={`film-tile ${film.solved ? "film-tile-solved" : ""} ${
+                film.locked ? "film-tile-locked" : ""
+              }`}
+              role={!film.solved && !film.locked ? "button" : undefined}
               onClick={() => {
-                if (!film.solved) navigate(`/stages/${stage}/play/${film.filmId}`);
+                if (!film.solved && !film.locked) navigate(`/stages/${stage}/play/${film.filmId}`);
               }}
             >
               {film.solved ? (
@@ -86,6 +88,10 @@ export default function StageFilmsScreen() {
                     </span>
                   </div>
                 </>
+              ) : film.locked ? (
+                <span className="film-tile-lock-icon" aria-hidden="true">
+                  🔒
+                </span>
               ) : (
                 <span className="film-tile-position">{index + 1}</span>
               )}

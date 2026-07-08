@@ -101,6 +101,7 @@ export async function computeStageChain(prisma: PrismaClient, userId: number): P
 export interface StageFilmDto {
   filmId: number;
   solved: boolean;
+  locked: boolean;
   title?: string;
   year?: number;
   posterUrl?: string | null;
@@ -125,12 +126,16 @@ export async function getStagesOverview(
   const stages = chain
     .filter((entry) => entry.films.length > 0)
     .map((entry) => {
+      let allPriorSolved = true;
       const films: StageFilmDto[] = entry.films.map((f) => {
         const solved = entry.solvedFilmIds.has(f.id);
-        if (!solved) return { filmId: f.id, solved: false };
+        const locked = !solved && !allPriorSolved;
+        allPriorSolved = allPriorSolved && solved;
+        if (!solved) return { filmId: f.id, solved: false, locked };
         return {
           filmId: f.id,
           solved: true,
+          locked: false,
           title: localizedTitle(f, language),
           year: f.year,
           posterUrl: f.posterUrl,
@@ -166,11 +171,17 @@ export async function assertFilmPlayable(prisma: PrismaClient, userId: number, f
 
   const chain = await computeStageChain(prisma, userId);
   const entry = chain.find((e) => e.stage === film.stage);
-  if (!entry || !entry.films.some((f) => f.id === filmId)) {
+  const filmIndex = entry?.films.findIndex((f) => f.id === filmId) ?? -1;
+  if (!entry || filmIndex === -1) {
     // Stage exists but this film isn't (yet) eligible content-wise.
     throw new GameError("film_not_playable", 400);
   }
   if (!entry.unlocked) throw new GameError("stage_locked", 403);
+
+  const allPriorSolved = entry.films
+    .slice(0, filmIndex)
+    .every((f) => entry.solvedFilmIds.has(f.id));
+  if (!allPriorSolved) throw new GameError("film_locked", 403);
 }
 
 export interface StageProgressDelta {
