@@ -31,4 +31,29 @@ export default async function meRoutes(fastify: FastifyInstance) {
 
     return reply.send({ id: user.id, language: user.language });
   });
+
+  // Wipes this user's own score, stage progress and game history back to a
+  // fresh-account state. Sessions/rounds cascade-delete with the user's
+  // GameSession rows (see schema.prisma), so those don't need a separate call.
+  fastify.post("/api/me/reset", async (request, reply) => {
+    const userId = request.userId!;
+
+    const user = await fastify.prisma.$transaction(async (tx) => {
+      await tx.gameSession.deleteMany({ where: { userId } });
+      await tx.userFilmProgress.deleteMany({ where: { userId } });
+      await tx.userSeenFrame.deleteMany({ where: { userId } });
+      await tx.weeklyScore.deleteMany({ where: { userId } });
+      return tx.user.update({ where: { id: userId }, data: { totalScore: 0, gamesPlayed: 0 } });
+    });
+
+    return reply.send({
+      id: user.id,
+      username: user.username,
+      firstName: user.firstName,
+      avatarUrl: user.avatarUrl,
+      language: user.language,
+      totalScore: user.totalScore,
+      gamesPlayed: user.gamesPlayed,
+    });
+  });
 }

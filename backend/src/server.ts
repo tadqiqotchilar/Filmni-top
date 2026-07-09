@@ -17,6 +17,7 @@ import adminAuthRoutes from "./modules/admin/authRoutes.js";
 import adminFilmsRoutes from "./modules/admin/filmsRoutes.js";
 import adminFramesRoutes from "./modules/admin/framesRoutes.js";
 import adminStatsRoutes from "./modules/admin/statsRoutes.js";
+import adminSettingsRoutes from "./modules/admin/settingsRoutes.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -51,6 +52,7 @@ async function main() {
   await fastify.register(adminFilmsRoutes);
   await fastify.register(adminFramesRoutes);
   await fastify.register(adminStatsRoutes);
+  await fastify.register(adminSettingsRoutes);
 
   fastify.get("/health", async () => ({ ok: true }));
 

@@ -659,3 +659,49 @@ button {
   display: flex;
   gap: 6px;
 }
+
+.settings-danger-zone {
+  margin-top: 24px;
+  background: var(--bg-secondary);
+  border: 1px solid rgba(255, 90, 60, 0.35);
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.settings-danger-zone h3 {
+  margin: 0;
+}
+
+.settings-danger-zone p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--hint);
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: #fff;
+}
+
+.settings-reset-confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.settings-reset-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.settings-reset-actions .btn {
+  flex: 1;
+}
+
+.settings-reset-error {
+  color: var(--danger);
+  font-size: 13px;
+}

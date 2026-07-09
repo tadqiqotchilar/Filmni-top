@@ -56,6 +56,8 @@ export const api = {
       body: JSON.stringify({ language }),
     }),
 
+  resetGame: () => request<MeResponse>("/api/me/reset", { method: "POST" }),
+
   startGame: (filmId: number, signal?: AbortSignal) =>
     request<StartSessionResponse>("/api/game/start", {
       method: "POST",

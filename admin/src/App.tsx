@@ -5,6 +5,7 @@ import LoginPage from "./pages/LoginPage";
 import FilmsPage from "./pages/FilmsPage";
 import FilmDetailPage from "./pages/FilmDetailPage";
 import StatsPage from "./pages/StatsPage";
+import SettingsPage from "./pages/SettingsPage";
 
 const TOKEN_KEY = "filmni-admin:token";
 
@@ -16,7 +17,7 @@ function readStoredToken(): string | null {
 
 function App() {
   const [token, setToken] = useState<string | null>(readStoredToken);
-  const [tab, setTab] = useState<"films" | "stats">("films");
+  const [tab, setTab] = useState<"films" | "stats" | "settings">("films");
   const [selectedFilm, setSelectedFilm] = useState<AdminFilm | null>(null);
 
   function handleLogin(newToken: string) {
@@ -53,6 +54,9 @@ function App() {
           <button className={tab === "stats" ? "active" : ""} onClick={() => setTab("stats")}>
             Statistika
           </button>
+          <button className={tab === "settings" ? "active" : ""} onClick={() => setTab("settings")}>
+            Sozlamalar
+          </button>
         </nav>
         <button onClick={handleLogout}>Chiqish</button>
       </header>
@@ -69,6 +73,7 @@ function App() {
             <FilmsPage onAuthError={handleLogout} onSelectFilm={setSelectedFilm} />
           ))}
         {tab === "stats" && <StatsPage onAuthError={handleLogout} />}
+        {tab === "settings" && <SettingsPage onAuthError={handleLogout} />}
       </main>
     </div>
   );

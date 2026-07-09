@@ -46,6 +46,13 @@ export interface Dictionary {
   settings: {
     title: string;
     language: string;
+    resetTitle: string;
+    resetDescription: string;
+    resetButton: string;
+    resetConfirm: string;
+    resetting: string;
+    resetError: string;
+    cancel: string;
   };
 }
 
@@ -97,5 +104,12 @@ export const uz: Dictionary = {
   settings: {
     title: "Sozlamalar",
     language: "Til",
+    resetTitle: "O'yinni yangilash",
+    resetDescription: "Barcha ochko va bosqich progressingiz 0 ga tushiriladi. Bu amalni orqaga qaytarib bo'lmaydi.",
+    resetButton: "O'yinni yangilash",
+    resetConfirm: "Rostdan ham barcha natijalaringizni 0 ga tushirmoqchimisiz? Bu amalni bekor qilib bo'lmaydi.",
+    resetting: "Yangilanmoqda...",
+    resetError: "O'yinni yangilab bo'lmadi. Qayta urinib ko'ring.",
+    cancel: "Bekor qilish",
   },
 };

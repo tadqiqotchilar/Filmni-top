@@ -40,6 +40,14 @@ export interface AdminStats {
   topPlayers: AdminTopPlayer[];
 }
 
+export interface AdminResetResult {
+  usersReset: number;
+  sessionsDeleted: number;
+  progressDeleted: number;
+  seenFramesDeleted: number;
+  weeklyScoresDeleted: number;
+}
+
 export interface FilmInput {
   titleOriginal: string;
   titleUz: string;
