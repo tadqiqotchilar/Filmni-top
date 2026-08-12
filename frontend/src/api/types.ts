@@ -5,6 +5,7 @@ export type HintType = "firstLetter" | "year" | "genre" | "lettersCount";
 export interface AuthResponse {
   token: string;
   user: MeResponse;
+  stages: StageDto[];
 }
 
 export interface MeResponse {

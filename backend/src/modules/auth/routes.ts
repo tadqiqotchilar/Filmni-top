@@ -3,6 +3,7 @@ import { z } from "zod";
 import { verifyTelegramInitData } from "./telegramAuth.js";
 import { signToken } from "./jwt.js";
 import { env } from "../../config/env.js";
+import { getStagesOverview } from "../game/stageService.js";
 
 const authBodySchema = z.object({
   initData: z.string().min(1),
@@ -47,6 +48,10 @@ export default async function authRoutes(fastify: FastifyInstance) {
 
     const token = signToken({ userId: user.id, telegramId: user.telegramId });
 
+    // Bundled with auth so the client can render the home screen from a
+    // single round trip instead of a second sequential /api/stages fetch.
+    const { stages } = await getStagesOverview(fastify.prisma, user.id, user.language);
+
     return reply.send({
       token,
       user: {
@@ -57,6 +62,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
         totalScore: user.totalScore,
         gamesPlayed: user.gamesPlayed,
       },
+      stages,
     });
   });
 }

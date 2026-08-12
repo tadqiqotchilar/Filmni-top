@@ -2,20 +2,27 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../api/client";
 import type { StageDto } from "../api/types";
+import { useAuth } from "../context/AuthContext";
 import { useI18n } from "../i18n";
 import { GearIcon, TrophyIcon } from "../components/icons";
 
 export default function StagesScreen() {
   const { t } = useI18n();
   const navigate = useNavigate();
-  const [stages, setStages] = useState<StageDto[] | null>(null);
+  const { takeInitialStages } = useAuth();
+  // Auth already bundled the stages list on app load — skip the redundant
+  // /api/stages round trip (and its own loading flash) the first time this
+  // screen mounts. Later mounts (e.g. returning from a played round) have
+  // nothing left to take and fetch fresh as before.
+  const [stages, setStages] = useState<StageDto[] | null>(() => takeInitialStages());
 
   useEffect(() => {
+    if (stages !== null) return;
     api
       .getStages()
       .then((res) => setStages(res.stages))
       .catch(() => setStages([]));
-  }, []);
+  }, [stages]);
 
   return (
     <div className="screen">

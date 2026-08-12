@@ -1,6 +1,6 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { api, setAuthToken } from "../api/client";
-import type { MeResponse } from "../api/types";
+import type { MeResponse, StageDto } from "../api/types";
 import { getTelegramInitDataRaw, initTelegram } from "../telegram/telegram";
 
 interface AuthContextValue {
@@ -8,6 +8,12 @@ interface AuthContextValue {
   loading: boolean;
   error: string | null;
   refreshUser: () => Promise<void>;
+  /**
+   * Stages bundled with the /api/auth response, so the home screen can skip
+   * its own /api/stages round trip on first render. One-shot: consume it via
+   * takeInitialStages(), which returns it once and clears it for good.
+   */
+  takeInitialStages: () => StageDto[] | null;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -32,6 +38,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<MeResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const initialStagesRef = useRef<StageDto[] | null>(null);
 
   useEffect(() => {
     initTelegram();
@@ -41,9 +48,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async function login() {
       try {
         const initData = resolveInitData();
-        const { token, user: authedUser } = await api.auth(initData);
+        const { token, user: authedUser, stages } = await api.auth(initData);
         if (cancelled) return;
         setAuthToken(token);
+        initialStagesRef.current = stages;
         setUser(authedUser);
       } catch (err) {
         if (!cancelled) setError(err instanceof Error ? err.message : "auth_failed");
@@ -63,8 +71,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(me);
   }
 
+  function takeInitialStages() {
+    const stages = initialStagesRef.current;
+    initialStagesRef.current = null;
+    return stages;
+  }
+
   return (
-    <AuthContext.Provider value={{ user, loading, error, refreshUser }}>
+    <AuthContext.Provider value={{ user, loading, error, refreshUser, takeInitialStages }}>
       {children}
     </AuthContext.Provider>
   );
